@@ -16,17 +16,21 @@ MYSQL_HOST = 'localhost'
 MYSQL_DBNAME = 'autosearch'
 MYSQL_USER = ''
 MYSQL_PASSWD = ''
+MYSQL_EBAY_TABLE = 'cars_ebay_test'
 
 EBAY_DEVID = ''
 EBAY_CLIENT_ID = ''
 EBAY_CLIENT_SECRET = ''
 EBAY_RU_NAME = ''
+EBAY_APP_NAME = ''
 EBAY_AUTH_URL = 'https://api.ebay.com/identity/v1/oauth2/token'
 EBAY_AUTH_SCOPES = 'https://api.ebay.com/oauth/api_scope'
-EBAY_FIND_URL = 'https://svcs.ebay.com/services/search/FindingService/v1'
-EBAY_SEARCH_LOCATION = ['US', 'Canada']
-EBAY_SEARCH_LISTING_TYPE = ['AuctionWithBIN', 'Classified', 'FixedPrice']
-
+EBAY_SEARCH_URL = 'https://svcs.ebay.com/services/search/FindingService/v1'
+EBAY_SEARCH_ITEM_FILTERS = [
+    {'name': 'ListingType', 'value': 'AuctionWithBIN'},
+    {'name': 'ListingType', 'value': 'Classified'},
+    {'name': 'ListingType', 'value': 'FixedPrice'},
+]
 
 RETRY_ENABLED = False
 
@@ -57,8 +61,8 @@ RETRY_ENABLED = False
 #AUTOTHROTTLE_DEBUG = False
 
 # Enable and configure HTTP caching (disabled by default)
-#HTTPCACHE_ENABLED = True
-#HTTPCACHE_EXPIRATION_SECS = 0
-#HTTPCACHE_DIR = 'httpcache'
+# HTTPCACHE_ENABLED = True
+# HTTPCACHE_DIR = 'httpcache'
+# HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+# HTTPCACHE_EXPIRATION_SECS = 0
 #HTTPCACHE_IGNORE_HTTP_CODES = []
-#HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'

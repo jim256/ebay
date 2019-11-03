@@ -1,3 +1,13 @@
+# Local project settings
+.idea
+# Keep the directory but not the files
+logs/*
+# This is to contain environment-specific and sensitive info and
+# so should be excluded from the source code repo.
+config.json
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -86,6 +86,8 @@ def setup_logging(settings: dict):
             handler = logging.handlers.RotatingFileHandler(settings['LOG_FILE'], backupCount=args.log_backup_count)
             # Roll over on application start
             handler.doRollover()
+        else:
+            os.makedirs(os.path.dirname(settings['LOG_FILE']), exist_ok=True)
     if settings['LOG_TO_CONSOLE']:
         handler = logging.StreamHandler()
         handler.setFormatter(logging.Formatter(fmt=settings['LOG_FORMAT'], datefmt=settings['LOG_DATEFORMAT']))

@@ -67,3 +67,23 @@ Linux
     > cd as-ebay
     > pip install -r requirements.txt
 
+Execute
+=======
+
+From Windows command line::
+
+    > cd c:\dev\as-ebay
+    > c:\dev\envs\as_ebay\Scripts\python.exe run.py ebay
+
+From Linux command line::
+
+    > cd /opt/as-ebay
+    > /opt/envs/as_ebay/bin/python run.py ebay [options]
+
+
+For available parameters use ``run.py --help``
+
+From cron::
+
+    > cd /opt/as-ebay && /opt/envs/as_ebay/bin/python run.py ebay [options]
+

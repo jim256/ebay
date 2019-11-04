@@ -20,9 +20,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument('spider', help='Name of scrapy spider to execute. (required)')
     parser.add_argument('--output',
-                        default='MYSQL',
                         help=('Location to export scraped results. \n'
-                              'Overrides the scrapy FEED_URI setting. (default: MYSQL)'))
+                              'Overrides the scrapy FEED_URI setting.'))
     parser.add_argument('--output-format',
                         help=('Output format for scraped items. \n'
                               'Overrides the scrapy FEED_FORMAT setting.'))

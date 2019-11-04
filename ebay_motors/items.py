@@ -6,7 +6,7 @@ import scrapy.loader
 
 
 class EbayListingItem(scrapy.Item):
-    id = scrapy.Field(serializer=int, exclude_insert=True, exclude_update=True)  # auto inc
+    id = scrapy.Field(serializer=int, exclude_insert=True, exclude_update=True)
     name = scrapy.Field()
     source = scrapy.Field(exclude_update=True)
     source_id = scrapy.Field(serializer=int, exclude_update=True)
@@ -30,7 +30,7 @@ class EbayListingItem(scrapy.Item):
     country = scrapy.Field()
     url = scrapy.Field()
     date_listed = scrapy.Field()
-    date_found = scrapy.Field()
+    date_found = scrapy.Field(exclude_update=True)
     date_updated = scrapy.Field(exclude_insert=True)
     num_doors = scrapy.Field(serializer=int)
     date_analyzed = scrapy.Field(exclude_insert=True)

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import arrow
 import logging
-import scrapy
 from twisted.enterprise import adbapi
 
-_DATE_FORMAT = 'MM/DD/YYYY HH:mm:ss'
+_DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
 
 class EbayListingCleanserPipeline(object):
@@ -32,7 +31,7 @@ class EbayListingCleanserPipeline(object):
 
     def process_item(self, item, spider):
         """Clean input values and map raw API values to internal DB values."""
-        self.logger.debug(f'Processing {item}')
+        self.logger.debug(f'Processing item {item.get("source_id")}')
 
         # clean out the 'not specified's
         for name in [k for k, v in item.items() if v and v.lower() == 'not specified']:
@@ -41,23 +40,29 @@ class EbayListingCleanserPipeline(object):
         item['source'] = 'ebay'
         item['date_found'] = arrow.utcnow().format(_DATE_FORMAT)
         item['date_updated'] = arrow.utcnow().format(_DATE_FORMAT)
-        if 'details' in item:
+        if item.get('details'):
             item['details'] = self._ascii_only(item['details'])
-        if 'name' in item:
+        if item.get('name'):
             item['name'] = self._ascii_only(item['name'])
-        if 'title_type' in item:
+        if item.get('title_type'):
             item['title_type'] = self._map_field(self._TITLE_TYPE_MAPPING, item.get('title_type'))
             # Sometimes title type is "clean" even though the description says it is salvage - prefer description
-            if any(x in item['details'].lower()
+            if any(x in item.get('details', '').lower()
                    for x in ["salvage", "branded", "buyback", "lemon", "rebuilt", "reconstructed", "rebuildable"]):
                 title_type = 'Salvage'
                 if title_type != item['title_type']:
                     self.logger.debug(f'Changed {item["title_type"]} to Salvage')
                 item['title_type'] = title_type
-        if 'fuel_type' in item:
+        if item.get('fuel_type'):
             item['fuel_type'] = self._map_field(self._FUEL_TYPE_MAPPING, item.get('fuel_type'))
         if not item.get('trim'):
             item['trim'] = item.get('submodel')
+        if item.get('date_listed'):
+            # Standardize the date format from Ebay to ours for MySQL
+            try:
+                item['date_listed'] = arrow.get(item.get('date_listed')).format(_DATE_FORMAT)
+            except:
+                self.logger.warning(f'Could not parse `date_listed` value of {item.get("date_listed")}')
         return item
 
     def _map_field(self, mapping: dict, value):
@@ -87,7 +92,7 @@ class MySQLExportPipeline(object):
     @classmethod
     def from_settings(cls, settings):
         # Only process items if requested to do so
-        if settings['FEED_URI'] is None or settings['FEED_URI'].lower() != 'mysql':
+        if not settings.get('MYSQL_ENABLED', False):
             log = logging.getLogger(cls.__name__)
             log.info(f'MySQL export is disabled.  Feeds are going to {settings["FEED_URI"]}')
             return None
@@ -114,28 +119,37 @@ class MySQLExportPipeline(object):
         # operation (deferred) has finished.
         return d
 
-    def _do_upsert(self, conn, item: scrapy.Item, spider):
+    def _do_upsert(self, cur, item, spider):
         """Perform an insert or update."""
-        id = item['id']
-        now = arrow.utcnow().format(_DATE_FORMAT)
 
-        # TODO: Tap the table to see if the row is already there to get the `price`
-        # If the price has decreased, set the item['date_analyzed'] to None
+        # Tap the table to see if the row is already there to get the `price`
+        table = spider.settings['MYSQL_EBAY_TABLE']
+        cur.execute(f'''
+            SELECT price 
+            FROM {table}
+            WHERE source = %s and source_id = %s;
+        ''', (item.get('source'), item.get('source_id')))
+        rv = cur.fetchone()
+        if rv:
+            old_price = rv[0]
+            # If the price has decreased, set the item['date_analyzed'] to None
+            if item.get('price') and float(item.get('price')) < old_price:
+                item['date_analyzed'] = None
 
         # Adapt this [insert...on duplicate key update] approach from the following
         # https://chartio.com/resources/tutorials/how-to-insert-if-row-does-not-exist-upsert-in-mysql/
         # http://www.mysqltutorial.org/mysql-insert-or-update-on-duplicate-key-update/
+        # https://pynative.com/python-mysql-execute-parameterized-query-using-prepared-statement/
         # In order to take advantage of this approach, there needs to be not only a composite
         # index on (source, source_id) but also a unique index on the same combination.
 
         # Loop through field specs to generate the parameterized query
-        table = spider.settings['MYSQL_EBAY_TABLE']
         sets = ', '.join([f'@{name} = %s' for name in item])
+        params = tuple(item.values())
         insert_fields = ', '.join([name for name in item if not item.fields[name].get('exclude_insert', False)])
         insert_values = ', '.join([f'@{name}' for name in item if not item.fields[name].get('exclude_insert', False)])
         updates = ', '.join([f'{name} = @{name}'
                              for name in item if not item.fields[name].get('exclude_update', False)])
-
         query = f'''
             SET {sets};
             INSERT INTO {table}
@@ -146,16 +160,12 @@ class MySQLExportPipeline(object):
                 {updates};
         '''
 
-        cur = conn.cursor(prepared=True)
-        rv = cur.execute(query)
-        # Check the return value to validate the insert/update
+        cur.execute(query, params)
         # If rows affected == 1, it was a new insert
         # If rows affected == 2, it was an update
         # If rows affected == 0, nothing was changed
-        conn.commit()
-        self.logger.debug(f'Stored item {id} to database.')
+        self.logger.debug(f'Stored item {item.get("source_id")} to database')
 
     def _handle_error(self, failure, item, spider):
         """Handle occurred on db interaction."""
-        # do nothing, just log
-        self.logger.error(failure)
+        self.logger.error(f'Error writing to the database: {failure}')

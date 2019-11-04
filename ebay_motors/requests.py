@@ -43,6 +43,15 @@ class EbayRequest(JsonRequest):
 
     @classmethod
     def search_json(cls, settings, page: int = 1, *args, **kwargs):
+        # Check if we are `faking` the call to ebay with a canned response for testing
+        if settings.get('EBAY_MOCK_SEARCH', False):
+            return cls(
+                'https://postman-echo.com/post',
+                headers={},
+                data=_mocked_search_response,
+                *args, **kwargs,
+            )
+
         headers = {
             'Authorization': f'Bearer {cls.access_token}',
             'X-EBAY-SOA-GLOBAL-ID': 'EBAY-MOTOR',
@@ -71,44 +80,6 @@ class EbayRequest(JsonRequest):
             headers=headers,
             data=body,
             *args, **kwargs,
-        )
-
-    @classmethod
-    def search_get(cls, settings):
-        log = logging.getLogger(cls.__name__)
-        log.debug(f'Searching ebay as {settings.get("EBAY_DEVID")}')
-
-        # https://developer.ebay.com/Devzone/finding/Concepts/MakingACall.html#StandardURLParameters
-        # https://developer.ebay.com/Devzone/finding/Concepts/SiteIDToGlobalID.html
-        headers = {
-            'Authorization': f'Bearer {cls.access_token}',
-        }
-        search_criteria = {
-            'OPERATION-NAME': 'findItemsAdvanced',
-            'SERVICE-NAME': 'FindingService',
-            'SERVICE-VERSION': '1.0.0',
-            'GLOBAL-ID': 'EBAY-US',
-            'SECURITY-APPNAME': settings['EBAY_DEVID'],
-            'RESPONSE-DATA-FORMAT': 'JSON',
-            'REST-PAYLOAD': None,
-            # &Standard input fields
-            # 'paginationInput': '',
-            # 'sortOrder': '',
-            # 'itemFilter': '',
-            # 'aspectFilter': '',
-            # 'outputSelector': '',
-            # &Call-specific input fields
-        }
-
-        # Note: If the spider is running for longer than the access_token
-        # is valid (typically 2 hours), subsequent search calls could fail
-        #
-        # Return a deferred to the actual call
-        return cls(
-            settings,
-            f'{settings.get("EBAY_SEARCH_URL")}?{urllib.parse.urlencode(search_criteria)}',
-            method='GET',
-            headers=headers,
         )
 
     def notes(self):
@@ -157,44 +128,45 @@ class EbayRequest(JsonRequest):
           }
         }
 
-        _ITEM_FILTERS = [
-        'AvailableTo',
-        'BestOfferOnly',
-        'CharityOnly',
-        'Condition',
-        'Currency',
-        'EndTimeFrom',
-        'EndTimeTo',
-        'ExcludeAutoPay',
-        'ExcludeCategory',
-        'ExcludeSeller',
-        'ExpeditedShippingType',
-        'FeaturedOnly',
-        'FeedbackScoreMax',
-        'FeedbackScoreMin',
-        'FreeShippingOnly',
-        'GetItFastOnly',
-        'HideDuplicateItems',
-        'ListedIn',
-        'ListingType',
-        'LocalPickupOnly',
-        'LocalSearchOnly',
-        'LocatedIn',
-        'LotsOnly',
-        'MaxBids',
-        'MaxDistance',
-        'MaxHandlingTime',
-        'MaxPrice',
-        'MaxQuantity',
-        'MinBids',
-        'MinPrice',
-        'MinQuantity',
-        'ModTimeFrom',
-        'PaymentMethod',
-        'ReturnsAcceptedOnly',
-        'Seller',
-        'SellerBusinessType',
-        'TopRatedSellerOnly',
-        'ValueBoxInventory',
-        'WorldOfGoodOnly',
-    ]
+
+_mocked_search_response = {
+    'ack': 'Success',
+    'paginationOutput': {
+        'pageNumber': '1',
+        'totalPages': '1',
+    },
+    'searchResult': {
+        'item': [
+            {
+                'itemId': '1',
+                'title': 'title_1',
+                'viewItemURL': 'url_1',
+                'sellingStatus': {
+                    'currentPrice': {
+                        '#text': '1.0',
+                    }
+                },
+                'location': 'CINCINNATI,OH,USA',
+                'country': 'US',
+                'listingInfo': {
+                    'startTime': '2019-11-02 12:00:00',
+                },
+            },
+            {
+                'itemId': '2',
+                'title': 'title_2',
+                'viewItemURL': 'url_2',
+                'sellingStatus': {
+                    'currentPrice': {
+                        '#text': '2.0',
+                    }
+                },
+                'location': 'CINCINNATI,OH,USA',
+                'country': 'US',
+                'listingInfo': {
+                    'startTime': '2019-11-02 12:00:00',
+                },
+            }
+        ]
+    }
+}

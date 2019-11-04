@@ -37,6 +37,11 @@ class EbaySpider(scrapy.spiders.Spider):
 
     def parse_results(self, response):
         search_resp = json.loads(response.text)
+
+        # If `faking` the response, pull out the response content
+        if self.settings.get('EBAY_MOCK_SEARCH', False):
+            search_resp = search_resp.get('json')
+
         # Check status of response
         if search_resp['ack'] in ['Failure', 'PartialFailure']:  # Other values are 'Success', 'Warning'
             self.logger.error(f'Error(s) returned from search: {search_resp["errorMessage"]}')

@@ -12,8 +12,9 @@ ITEM_PIPELINES = {
    'ebay_motors.pipelines.MySQLExportPipeline': 300,
 }
 
-MYSQL_HOST = 'localhost'
-MYSQL_DBNAME = 'autosearch'
+MYSQL_ENABLED = True
+MYSQL_HOST = ''
+MYSQL_DBNAME = ''
 MYSQL_USER = ''
 MYSQL_PASSWD = ''
 MYSQL_EBAY_TABLE = 'cars_ebay_test'
@@ -31,6 +32,47 @@ EBAY_SEARCH_ITEM_FILTERS = [
     {'name': 'ListingType', 'value': 'Classified'},
     {'name': 'ListingType', 'value': 'FixedPrice'},
 ]
+
+# SUPPORTED EBAY ITEM FILTER TYPES
+# 'AvailableTo',
+# 'BestOfferOnly',
+# 'CharityOnly',
+# 'Condition',
+# 'Currency',
+# 'EndTimeFrom',
+# 'EndTimeTo',
+# 'ExcludeAutoPay',
+# 'ExcludeCategory',
+# 'ExcludeSeller',
+# 'ExpeditedShippingType',
+# 'FeaturedOnly',
+# 'FeedbackScoreMax',
+# 'FeedbackScoreMin',
+# 'FreeShippingOnly',
+# 'GetItFastOnly',
+# 'HideDuplicateItems',
+# 'ListedIn',
+# 'ListingType',
+# 'LocalPickupOnly',
+# 'LocalSearchOnly',
+# 'LocatedIn',
+# 'LotsOnly',
+# 'MaxBids',
+# 'MaxDistance',
+# 'MaxHandlingTime',
+# 'MaxPrice',
+# 'MaxQuantity',
+# 'MinBids',
+# 'MinPrice',
+# 'MinQuantity',
+# 'ModTimeFrom',
+# 'PaymentMethod',
+# 'ReturnsAcceptedOnly',
+# 'Seller',
+# 'SellerBusinessType',
+# 'TopRatedSellerOnly',
+# 'ValueBoxInventory',
+# 'WorldOfGoodOnly',
 
 RETRY_ENABLED = False
 
@@ -61,8 +103,8 @@ RETRY_ENABLED = False
 #AUTOTHROTTLE_DEBUG = False
 
 # Enable and configure HTTP caching (disabled by default)
-# HTTPCACHE_ENABLED = True
-# HTTPCACHE_DIR = 'httpcache'
-# HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
-# HTTPCACHE_EXPIRATION_SECS = 0
+HTTPCACHE_ENABLED = True
+HTTPCACHE_DIR = 'httpcache'
+HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+HTTPCACHE_EXPIRATION_SECS = 0
 #HTTPCACHE_IGNORE_HTTP_CODES = []

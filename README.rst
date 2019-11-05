@@ -34,11 +34,12 @@ Windows
 
     > cd c:\dev\envs
     > virtualenv --python=python3.7 as_ebay
-    > as_ebay\Scripts\activate.bat
     > cd c:\dev
     > git clone https://github.com/jim256/as-ebay
     > cd as-ebay
+    > c:\dev\envs\as_ebay\Scripts\activate.bat
     > pip install -r requirements.txt
+    > deactivate
 
 *Note*:
     If the installation fails due to the `cryptography`, `lxml`, or `mysqlclient` packages, download the appropriate wheel for your platform from:
@@ -53,7 +54,7 @@ or if unavailable there, from:
 
 and install with::
 
-    > pip install cryptography-2.8-cp37-cp37m-win32.whl
+    pip install cryptography-2.8-cp37-cp37m-win32.whl
 
 Linux
 -----
@@ -61,11 +62,12 @@ Linux
 
     > cd /opt/envs
     > virtualenv --python=python3.7 as_ebay
-    > source as_ebay/bin/activate
     > cd /opt
     > git clone https://github.com/jim256/as-ebay
     > cd as-ebay
+    > source /opt/envs/as_ebay/bin/activate
     > pip install -r requirements.txt
+    > deactivate
 
 Execute
 =======
@@ -78,12 +80,15 @@ From Windows command line::
 From Linux command line::
 
     > cd /opt/as-ebay
-    > /opt/envs/as_ebay/bin/python run.py ebay [options]
-
-
-For available parameters use ``run.py --help``
+    > /opt/envs/as_ebay/bin/python run.py ebay
 
 From cron::
 
-    > cd /opt/as-ebay && /opt/envs/as_ebay/bin/python run.py ebay [options]
+    cd /opt/as-ebay && /opt/envs/as_ebay/bin/python run.py ebay [options]
+
+For available parameters use ``run.py --help``
+
+`Sample common execution command`::
+
+    python run.py ebay --configfile=config.json --loglevel=INFO
 

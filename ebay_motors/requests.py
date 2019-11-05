@@ -1,5 +1,5 @@
+import arrow
 import base64
-import logging
 import scrapy
 import urllib.parse
 try:
@@ -8,11 +8,14 @@ except ImportError:
     # Handle backward-incompatible class name change in scrapy 1.8
     from scrapy.http import JSONRequest as JsonRequest
 
+import tests
+from ebay_motors import utils
+
 
 class EbayRequest(JsonRequest):
     """Client to access the Ebay API.
 
-    Handles the OAuth2 token exchanges, refreshing as needed.
+    Handles the OAuth2 token exchanges.
     Exposes methods to search and retrieve listings.
     """
 
@@ -21,9 +24,23 @@ class EbayRequest(JsonRequest):
     # a singleton object.
     access_token = None
 
+    # Default to last day
+    prior_run_date = utils.ebay_date_format(arrow.utcnow().shift(days=-1))
+    current_run_date = utils.ebay_date_format(arrow.utcnow())
+
     @classmethod
     def auth(cls, settings, *args, **kwargs) -> scrapy.Request:
         """OAuth call to get an access token for ebay APIs."""
+
+        # Check if we are `faking` the call to ebay with a canned response for testing
+        if settings.get('EBAY_MOCK_SEARCH', False):
+            return cls(
+                'https://postman-echo.com/post',
+                headers={},
+                data=tests.load_test_data('auth', settings['EBAY_MOCK_SEARCH']),
+                *args, **kwargs,
+            )
+
         basic_auth = base64.encodebytes(
             f'{settings["EBAY_CLIENT_ID"]}:{settings["EBAY_CLIENT_SECRET"]}'.encode()).decode().replace('\n', '')
         return scrapy.FormRequest(
@@ -42,13 +59,13 @@ class EbayRequest(JsonRequest):
         )
 
     @classmethod
-    def search_json(cls, settings, page: int = 1, *args, **kwargs):
+    def search(cls, settings, page: int = 1, *args, **kwargs) -> scrapy.Request:
         # Check if we are `faking` the call to ebay with a canned response for testing
         if settings.get('EBAY_MOCK_SEARCH', False):
             return cls(
                 'https://postman-echo.com/post',
                 headers={},
-                data=_mocked_search_response,
+                data=tests.load_test_data('search', settings['EBAY_MOCK_SEARCH']),
                 *args, **kwargs,
             )
 
@@ -58,27 +75,58 @@ class EbayRequest(JsonRequest):
             'X-EBAY-SOA-OPERATION-NAME': 'findItemsAdvanced',
             'X-EBAY-SOA-REQUEST-DATA-FORMAT': 'JSON',
             'X-EBAY-SOA-RESPONSE-DATA-FORMAT': 'JSON',
-            'X-EBAY-SOA-SECURITY-APPNAME': settings['EBAY_APP_NAME'],
+            'X-EBAY-SOA-SECURITY-APPNAME': settings['EBAY_CLIENT_ID'],
             # 'X-EBAY-SOA-SERVICE-VERSION': '1.0.0',
         }
         body = {
             "findItemsAdvancedRequest": {
                 "xmlns": "https://www.ebay.com/marketplace/search/v1/services",
                 "categoryId": "6001",  # All vehicle categories
+                "itemFilter": [
+                    {'name': 'LocatedIn', 'value': ['US', 'CA']},
+                    {'name': 'ModTimeFrom', 'value': cls.prior_run_date}
+                ],
                 "paginationInput": {
-                    "entriesPerPage": "100",  # 1..100
+                    "entriesPerPage": settings.get('EBAY_SEARCH_PAGESIZE', '100'),
                     "pageNumber": str(page),
                     "sortOrder": "EndTimeSoonest",
                 }
             }
         }
         if settings.get('EBAY_SEARCH_ITEM_FILTERS'):
-            body['findItemsAdvancedRequest']['itemFilter'] = settings.get('EBAY_SEARCH_ITEM_FILTERS')
+            body['findItemsAdvancedRequest']['itemFilter'].extend(settings.get('EBAY_SEARCH_ITEM_FILTERS'))
 
         return cls(
             settings['EBAY_SEARCH_URL'],
             headers=headers,
             data=body,
+            *args, **kwargs,
+        )
+
+    @classmethod
+    def details(cls, settings, items, *args, ** kwargs) -> scrapy.Request:
+        # Check if we are `faking` the call to ebay with a canned response for testing
+        if settings.get('EBAY_MOCK_SEARCH', False):
+            return cls(
+                'https://postman-echo.com/post',
+                method='POST',
+                headers={'Content-Type': 'application/xml'},
+                body=tests.load_test_data('details', settings['EBAY_MOCK_SEARCH']),
+                *args, **kwargs,
+            )
+
+        params = dict(
+            callname='GetMultipleItems',
+            responseencoding='XML',
+            appid=settings['EBAY_CLIENT_ID'],
+            siteid='100',  # ebay motors
+            version='967',
+            ItemID=','.join([i['itemId'][0] for i in items]),
+            IncludeSelector='TextDescription, ItemSpecifics',
+        )
+        return cls(
+            settings['EBAY_DETAILS_URL'] + '?' + urllib.parse.urlencode(params),
+            method='GET',
             *args, **kwargs,
         )
 
@@ -127,46 +175,3 @@ class EbayRequest(JsonRequest):
               },
           }
         }
-
-
-_mocked_search_response = {
-    'ack': 'Success',
-    'paginationOutput': {
-        'pageNumber': '1',
-        'totalPages': '1',
-    },
-    'searchResult': {
-        'item': [
-            {
-                'itemId': '1',
-                'title': 'title_1',
-                'viewItemURL': 'url_1',
-                'sellingStatus': {
-                    'currentPrice': {
-                        '#text': '1.0',
-                    }
-                },
-                'location': 'CINCINNATI,OH,USA',
-                'country': 'US',
-                'listingInfo': {
-                    'startTime': '2019-11-02 12:00:00',
-                },
-            },
-            {
-                'itemId': '2',
-                'title': 'title_2',
-                'viewItemURL': 'url_2',
-                'sellingStatus': {
-                    'currentPrice': {
-                        '#text': '2.0',
-                    }
-                },
-                'location': 'CINCINNATI,OH,USA',
-                'country': 'US',
-                'listingInfo': {
-                    'startTime': '2019-11-02 12:00:00',
-                },
-            }
-        ]
-    }
-}

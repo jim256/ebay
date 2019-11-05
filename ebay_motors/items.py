@@ -38,7 +38,3 @@ class EbayListingItem(scrapy.Item):
     details = scrapy.Field()
     page_views = scrapy.Field(serializer=int)
     favorited = scrapy.Field(serializer=int)
-
-
-class EbayListingItemLoader(scrapy.loader.ItemLoader):
-    pass

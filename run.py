@@ -90,7 +90,9 @@ def setup_logging(settings: dict):
     if settings['LOG_TO_CONSOLE']:
         handler = logging.StreamHandler()
         handler.setFormatter(logging.Formatter(fmt=settings['LOG_FORMAT'], datefmt=settings['LOG_DATEFORMAT']))
-        logging.getLogger().addHandler(handler)
+        log = logging.getLogger()
+        log.addHandler(handler)
+        log.setLevel(getattr(logging, settings['LOG_LEVEL']))
 
 
 if __name__ == '__main__':

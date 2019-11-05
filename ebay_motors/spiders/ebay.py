@@ -1,9 +1,11 @@
-import arrow
 import json
+import os
 import scrapy
+import scrapy.signals
 
 from ebay_motors.items import EbayListingItem
 from ebay_motors.requests import EbayRequest
+from ebay_motors import utils
 
 
 class EbaySpider(scrapy.spiders.Spider):
@@ -13,83 +15,152 @@ class EbaySpider(scrapy.spiders.Spider):
 
     name = 'ebay'
 
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        spider = super().from_crawler(crawler, *args, **kwargs)
+        # crawler.signals.connect(spider.spider_opened, signals.spider_opened)
+        crawler.signals.connect(spider.spider_closed, scrapy.signals.spider_closed)
+        return spider
+
+    def spider_closed(self, spider):
+        self.logger.info(f'Updating prior_run_date timestamp file with {EbayRequest.current_run_date}')
+        open(self.settings.get('EBAY_SEARCH_TIMESTAMP_PATH'), 'w').write(EbayRequest.current_run_date)
+
     def start_requests(self):
+        """Entry point for scraping."""
+
         self.logger.debug(f'Starting search')
-
-        # TODO: lookup prior run timestamp to set start_date for this run
-        prior_run_date = arrow.get().shift(hours=-1)  # hacked for now to be last hour
-        self.logger.debug(f'Initializing {self.name} spider with prior run date of {prior_run_date}')
-        # self.settings.set('PRIOR_RUN_DATE', prior_run_date)
-
         yield EbayRequest.auth(
             self.settings,
             callback=self.parse_auth_and_search,
             errback=self.auth_error)
 
     def parse_auth_and_search(self, response):
+        """Pull out the access token and submit the initial search."""
+
         # Take the access_token from the auth response and put it on the EbayRequest class
         auth_resp = json.loads(response.text)
+
+        # If `faking` the response, pull out the response content
+        if self.settings.get('EBAY_MOCK_SEARCH', False):
+            auth_resp = auth_resp.get('data')
+
         EbayRequest.access_token = auth_resp['access_token']
-        yield EbayRequest.search_json(
+
+        if self.settings.get('EBAY_SEARCH_TIMESTAMP_PATH') and \
+                os.path.isfile(self.settings['EBAY_SEARCH_TIMESTAMP_PATH']):
+            prior_run_date = open(self.settings['EBAY_SEARCH_TIMESTAMP_PATH']).read()
+            EbayRequest.prior_run_date = prior_run_date
+        self.logger.info(f'Initializing {self.name} spider with prior run date of {EbayRequest.prior_run_date}')
+
+        yield EbayRequest.search(
             self.settings,
             callback=self.parse_results,
             errback=self.search_error)
 
     def parse_results(self, response):
+        """
+        Process a page of search results.
+
+        Kick off additional page searches if there are more.
+        Initiate detail searches for all items returned.
+        """
         search_resp = json.loads(response.text)
 
         # If `faking` the response, pull out the response content
         if self.settings.get('EBAY_MOCK_SEARCH', False):
-            search_resp = search_resp.get('json')
+            search_resp = search_resp.get('data')
+
+        # Get to the body of the response
+        search_resp = search_resp.get('findItemsAdvancedResponse')
+        if search_resp:
+            search_resp = search_resp[0]
+        else:
+            self.logger.error(f'No body in response from search: {response.text}')
+            return
 
         # Check status of response
         if search_resp['ack'] in ['Failure', 'PartialFailure']:  # Other values are 'Success', 'Warning'
             self.logger.error(f'Error(s) returned from search: {search_resp["errorMessage"]}')
             return
+
         # Check pagination
-        cur_page = int(search_resp.get('paginationOutput', {}).get('pageNumber', '1'))
-        total_pages = int(search_resp.get('paginationOutput', {}).get('totalPages', '1'))
+        cur_page = int(search_resp.get('paginationOutput', [{}])[0].get('pageNumber', ['1'])[0])
+        total_pages = int(search_resp.get('paginationOutput', [{}])[0].get('totalPages', ['1'])[0])
+        self.logger.debug(f'Search results contain {total_pages} pages.')
         # If there are more pages, go get them
         if cur_page < total_pages:
             # TODO: Determine whether it is better to loop through and spin off all pages at once.
             self.logger.debug(f'Requesting page {cur_page + 1} of {total_pages}')
-            yield EbayRequest.search_json(
+            yield EbayRequest.search(
                 self.settings,
                 page=cur_page + 1,
                 callback=self.parse_results,
                 errback=self.search_error)
 
-        # Loop through all the items and yield them for persistence
-        for item in search_resp['searchResult']['item']:
-            yield EbayListingItem({
-                'source_id': item.get('itemId'),
-                'name': item.get('title'),
-                'url': item.get('viewItemURL'),
-                'price': item.get('sellingStatus', {}).get('currentPrice', {}).get('#text'),
-                'city': item.get('location').rsplit(',', maxsplit=2)[0] if ',' in item.get('location', '') else None,
-                'state': item.get('location').rsplit(',', maxsplit=2)[1] if ',' in item.get('location', '') else None,
-                'country': item.get('country'),
-                'date_listed': item.get('listingInfo', {}).get('startTime'),
-                'seller_type': item.get(''),
-                'details': item.get(''),
-                'page_views': item.get(''),
-                'favorited': item.get(''),
+        # Take the high level info and process the items in batches
+        # eBay currently only supports batches of 20 items
+        for batch in utils.batches(search_resp['searchResult'][0]['item'], 20):
+            yield EbayRequest.details(
+                self.settings,
+                items=batch,
+                callback=self.parse_details,
+                errback=self.detail_error,
+                cb_kwargs={'items': batch})
 
-                'year': item.get(''),
-                'make': item.get(''),
-                'model': item.get(''),
-                'submodel': item.get(''),
-                'mileage': item.get(''),
-                'transmission': item.get(''),
-                'num_cylinders': item.get(''),
-                'drive_type': item.get(''),
-                'body_type': item.get(''),
-                'fuel_type': item.get(''),
-                'title_type': item.get(''),
-                'vin': item.get(''),
-                'trim': item.get(''),
-                'color': item.get(''),
-                'num_doors': item.get(''),
+    def parse_details(self, response, items):
+        """
+
+        """
+        # If `faking` the response, pull out the response content
+        if self.settings.get('EBAY_MOCK_SEARCH', False):
+            response = scrapy.Selector(text=json.loads(response.text)['data'], type='xml')
+            response.remove_namespaces()
+        else:
+            response.selector.remove_namespaces()
+
+        # Check status of response
+        if response.xpath('/GetMultipleItemsResponse/Ack').get() in ['Failure', 'PartialFailure']:
+            # Other values are 'Success', 'Warning'
+            self.logger.error(f'Error(s) returned from details: '
+                              f'{response.xpath("/GetMultipleItemsResponse/ErrorMessage").get()}')
+            return
+
+        for item in items:
+            try:
+                detail = response.xpath(f'/GetMultipleItemsResponse/Item[ItemID="{item["itemId"][0]}"]')[0]
+            except IndexError:
+                self.logger.warning(f'Detail records did not contain item `{item["itemId"][0]}`, skipping')
+                continue
+            yield EbayListingItem({
+                'source_id': item.get('itemId', [None])[0],
+                'name': item.get('title', [None])[0],
+                'url': item.get('viewItemURL', [None])[0],
+                'price': item.get('sellingStatus', [{}])[0].get('currentPrice', [{}])[0].get('__value__'),
+                'city': item['location'][0].rsplit(',', maxsplit=2)[0] if ',' in item.get('location', [''])[0] else None,
+                'state': item['location'][0].rsplit(',', maxsplit=2)[1] if ',' in item.get('location', [''])[0] else None,
+                'country': item.get('country', [None])[0],
+                'date_listed': item.get('listingInfo', [{}])[0].get('startTime')[0],
+                'favorited': item.get('listingInfo', [{}])[0].get('watchCount', [None])[0],
+
+                'page_views': detail.xpath('HitCount/text()').get(),
+                'seller_type': detail.xpath('ItemSpecifics/NameValueList[Name="For Sale By"]/Value/text()').get(),
+                'details': detail.xpath('Description/text()').get(),
+                'year': detail.xpath('ItemSpecifics/NameValueList[Name="Year"]/Value/text()').get(),
+                'make': detail.xpath('ItemSpecifics/NameValueList[Name="Make"]/Value/text()').get(),
+                'model': detail.xpath('ItemSpecifics/NameValueList[Name="Model"]/Value/text()').get(),
+                'submodel': detail.xpath('ItemSpecifics/NameValueList[Name="Sub Model"]/Value/text()').get(),
+                'mileage': detail.xpath('ItemSpecifics/NameValueList[Name="Mileage"]/Value/text()').get(),
+                'transmission': detail.xpath('ItemSpecifics/NameValueList[Name="Transmission"]/Value/text()').get(),
+                'num_cylinders': detail.xpath('ItemSpecifics/NameValueList[Name="Number of Cylinders"]/Value/text()').get(),
+                'drive_type': detail.xpath('ItemSpecifics/NameValueList[Name="Drive Type"]/Value/text()').get(),
+                'body_type': detail.xpath('ItemSpecifics/NameValueList[Name="Body Type"]/Value/text()').get(),
+                'fuel_type': detail.xpath('ItemSpecifics/NameValueList[Name="Fuel Type"]/Value/text()').get(),
+                'title_type': detail.xpath('ItemSpecifics/NameValueList[Name="Vehicle Title"]/Value/text()').get(),
+                'vin': detail.xpath('ItemSpecifics/NameValueList[Name="VIN"]/Value/text()').get(),
+                'trim': detail.xpath('ItemSpecifics/NameValueList[Name="Trim"]/Value/text()').get(),
+                'color': detail.xpath('ItemSpecifics/NameValueList[Name="Exterior Color"]/Value/text()').get(),
+                'num_doors': detail.xpath('ItemSpecifics/NameValueList[Name="Number of Doors"]/Value/text()').get(),
             })
 
     def auth_error(self, failure):
@@ -100,6 +171,14 @@ class EbaySpider(scrapy.spiders.Spider):
         self.logger.error(repr(failure))
         self.logger.error(failure.value.response.body)
 
-        # TODO: check for expired token error and initiate generating a new access_token
+        # Check for expired token error and initiate generating a new access_token
+        # This can be deferred to a future date if the expected runtime of this
+        # synchronization is less than the 2 hour token expiration window.
+
+    def detail_error(self, failure):
+        self.logger.error(repr(failure))
+        self.logger.error(failure.value.response.body)
+
+        # Check for expired token error and initiate generating a new access_token
         # This can be deferred to a future date if the expected runtime of this
         # synchronization is less than the 2 hour token expiration window.

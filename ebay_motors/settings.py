@@ -32,9 +32,12 @@ EBAY_AUTH_URL = 'https://api.ebay.com/identity/v1/oauth2/token'
 EBAY_AUTH_SCOPES = 'https://api.ebay.com/oauth/api_scope'
 EBAY_SEARCH_TIMESTAMP_PATH = project_dir / 'lastrun.txt'
 EBAY_SEARCH_URL = 'https://svcs.ebay.com/services/search/FindingService/v1'
+# List of available item filters:
 # https://developer.ebay.com/Devzone/finding/CallRef/types/ItemFilterType.html
 EBAY_SEARCH_ITEM_FILTERS = [
     {'name': 'ListingType', 'value': ["AuctionWithBIN", "Classified", "FixedPrice"]},
+    # {'name': 'Condition', 'value': 'Used'},
+    # {'name': 'MaxPrice', 'value': '20000'},
 ]
 EBAY_SEARCH_PAGESIZE = '100'  # number of items per page in search results 1..100
 EBAY_DETAILS_URL = 'http://open.api.ebay.com/shopping'

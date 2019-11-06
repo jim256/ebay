@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import arrow
 import logging
+import re
 from scrapy.exceptions import DropItem
 from twisted.enterprise import adbapi
+
+from ebay_motors.requests import EbayRequest
 
 _DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
@@ -40,35 +43,61 @@ class EbayListingCleanserPipeline(object):
             del item[name]
 
         item['source'] = 'ebay'
-        item['date_found'] = arrow.utcnow().format(_DATE_FORMAT)
-        item['date_updated'] = arrow.utcnow().format(_DATE_FORMAT)
+        item['date_found'] = arrow.get(EbayRequest.current_run_date).format(_DATE_FORMAT)
+        item['date_updated'] = arrow.get(EbayRequest.current_run_date).format(_DATE_FORMAT)
+
         if item.get('details'):
             item['details'] = self._ascii_only(item['details'])
+
         if item.get('name'):
             item['name'] = self._ascii_only(item['name'])
+
         if item.get('num_doors'):
             if not item['num_doors'].isnumeric():
                 # e.g. '4 Doors'
                 item['num_doors'] = item['num_doors'][0]
+
+        if item.get('num_cylinders'):
+            if not item['num_cylinders'].isnumeric():
+                # e.g. 'V8' -- strip out all non-numerics
+                item['num_cylinders'] = re.sub(r'\D', '', item['num_cylinders'])
+
+        if item.get('mileage'):
+            if not item['mileage'].isnumeric():
+                # e.g. 'N/A'
+                item['mileage'] = None
+
         if item.get('title_type'):
             item['title_type'] = self._map_field(self._TITLE_TYPE_MAPPING, item.get('title_type'))
-            # Sometimes title type is "clean" even though the description says it is salvage - prefer description
-            if any(x in item.get('details', '').lower()
-                   for x in ["salvage", "branded", "buyback", "lemon", "rebuilt", "reconstructed", "rebuildable"]):
-                title_type = 'Salvage'
-                if title_type != item['title_type']:
-                    self.logger.debug(f'Changed {item["title_type"]} to Salvage')
-                item['title_type'] = title_type
+            if item.get('details'):
+                # Sometimes title type is "clean" even though the description says it is salvage - prefer description
+                if any(x in item.get('details', '').lower()
+                       for x in ["salvage", "branded", "buyback", "lemon", "rebuilt", "reconstructed", "rebuildable"]):
+                    title_type = 'Salvage'
+                    if title_type != item['title_type']:
+                        self.logger.debug(f'Changed {item["title_type"]} to Salvage')
+                    item['title_type'] = title_type
+
         if item.get('fuel_type'):
             item['fuel_type'] = self._map_field(self._FUEL_TYPE_MAPPING, item.get('fuel_type'))
+
+        if item.get('seller_type'):
+            # handle weirdness like 'Private Seller1951 chevy styleline deluxe'
+            seller_type = [key for key in self._SELLER_TYPE_MAPPING if item['seller_type'].lower().startswith(key)]
+            if seller_type:
+                item['seller_type'] = seller_type[0]
+            item['seller_type'] = self._map_field(self._SELLER_TYPE_MAPPING, item['seller_type'])
+
         if not item.get('trim'):
             item['trim'] = item.get('submodel')
+
         if item.get('date_listed'):
             # Standardize the date format from Ebay to ours for MySQL
             try:
                 item['date_listed'] = arrow.get(item.get('date_listed')).format(_DATE_FORMAT)
             except:
                 self.logger.warning(f'Could not parse `date_listed` value of {item.get("date_listed")}')
+
         return item
 
     def _map_field(self, mapping: dict, value):
@@ -152,6 +181,7 @@ class MySQLExportPipeline(object):
         insert_values = ', '.join([f'@{name}' for name in item if not item.fields[name].get('exclude_insert', False)])
         updates = ', '.join([f'{name} = @{name}'
                              for name in item if not item.fields[name].get('exclude_update', False)])
+        table = spider.settings['MYSQL_EBAY_TABLE']
         query = f'''
             SET {sets};
             INSERT INTO {table}

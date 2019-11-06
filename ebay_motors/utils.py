@@ -12,7 +12,7 @@ def batches(l: list, n: int):
 
 def ebay_date_format(date: arrow.Arrow) -> str:
     """Ebay requires the old form of ISO dates with 'Z' for zero offset instead of standard +0000."""
-    return date.format('YYYY-MM-DDTHH:MM:SS.SSS') + 'Z'
+    return date.format('YYYY-MM-DDTHH:mm:ss.SSS') + 'Z'
 
 
 def list_to_dict(l, key: str) -> dict:

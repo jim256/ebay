@@ -89,14 +89,14 @@ class EbaySpider(scrapy.spiders.Spider):
         total_pages = int(search_resp.get('paginationOutput', [{}])[0].get('totalPages', ['1'])[0])
         self.logger.debug(f'Search results contain {total_pages} pages.')
         # If there are more pages, go get them
-        if cur_page < total_pages:
-            # TODO: Determine whether it is better to loop through and spin off all pages at once.
-            self.logger.debug(f'Requesting page {cur_page + 1} of {total_pages}')
-            yield EbayRequest.search(
-                self.settings,
-                page=cur_page + 1,
-                callback=self.parse_results,
-                errback=self.search_error)
+        if cur_page == 1 and total_pages > 1:
+            for page in range(cur_page + 1, total_pages + 1):
+                self.logger.debug(f'Requesting page {page} of {total_pages}')
+                yield EbayRequest.search(
+                    self.settings,
+                    page=page,
+                    callback=self.parse_results,
+                    errback=self.search_error)
 
         # Take the high level info and process the items in batches
         # eBay currently only supports batches of 20 items

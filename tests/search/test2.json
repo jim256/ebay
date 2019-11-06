@@ -1,0 +1,307 @@
+{
+  "findItemsAdvancedResponse": [
+    {
+      "ack": [
+        "Success"
+      ],
+      "version": [
+        "1.13.0"
+      ],
+      "timestamp": [
+        "2019-11-05T13:45:25.314Z"
+      ],
+      "searchResult": [
+        {
+          "@count": "2",
+          "item": [
+            {
+              "itemId": [
+                "312830500060"
+              ],
+              "title": [
+                "2020 Jeep Wrangler Sport New 2020 Jeep Wrangler Unlimited Sport 4WD SUV 31Dodge 200221"
+              ],
+              "globalId": [
+                "EBAY-MOTOR"
+              ],
+              "primaryCategory": [
+                {
+                  "categoryId": [
+                    "6285"
+                  ],
+                  "categoryName": [
+                    "Wrangler"
+                  ]
+                }
+              ],
+              "galleryURL": [
+                "https://thumbs1.ebaystatic.com/m/mmVF81vQJWufB2DGX8BILdQ/140.jpg"
+              ],
+              "viewItemURL": [
+                "https://cgi.ebay.com/ebaymotors/2020-Jeep-Wrangler-Sport-/312830500060"
+              ],
+              "paymentMethod": [
+                "MOCC",
+                "PayPal",
+                "PaymentSeeDescription",
+                "CashInPerson"
+              ],
+              "autoPay": [
+                "true"
+              ],
+              "postalCode": [
+                "272**"
+              ],
+              "location": [
+                "Kernersville,NC,USA"
+              ],
+              "country": [
+                "US"
+              ],
+              "shippingInfo": [
+                {
+                  "shippingServiceCost": [
+                    {
+                      "@currencyId": "USD",
+                      "__value__": "0.0"
+                    }
+                  ],
+                  "shippingType": [
+                    "FreePickup"
+                  ],
+                  "shipToLocations": [
+                    "Worldwide"
+                  ]
+                }
+              ],
+              "sellingStatus": [
+                {
+                  "currentPrice": [
+                    {
+                      "@currencyId": "USD",
+                      "__value__": "10001.0"
+                    }
+                  ],
+                  "convertedCurrentPrice": [
+                    {
+                      "@currencyId": "USD",
+                      "__value__": "36608.0"
+                    }
+                  ],
+                  "sellingState": [
+                    "Active"
+                  ],
+                  "timeLeft": [
+                    "P4DT23H17M23S"
+                  ]
+                }
+              ],
+              "listingInfo": [
+                {
+                  "bestOfferEnabled": [
+                    "true"
+                  ],
+                  "buyItNowAvailable": [
+                    "false"
+                  ],
+                  "startTime": [
+                    "2019-11-03T13:02:48.000Z"
+                  ],
+                  "endTime": [
+                    "2019-11-10T13:02:48.000Z"
+                  ],
+                  "listingType": [
+                    "FixedPrice"
+                  ],
+                  "gift": [
+                    "false"
+                  ],
+                  "watchCount": [
+                    "1"
+                  ]
+                }
+              ],
+              "galleryPlusPictureURL": [
+                "https://galleryplus.ebayimg.com/ws/web/312830500060_1_1_1.jpg"
+              ],
+              "condition": [
+                {
+                  "conditionId": [
+                    "1000"
+                  ],
+                  "conditionDisplayName": [
+                    "New"
+                  ]
+                }
+              ],
+              "isMultiVariationListing": [
+                "false"
+              ],
+              "topRatedListing": [
+                "true"
+              ]
+            },
+            {
+              "itemId": [
+                "303341536335"
+              ],
+              "title": [
+                "2020 Jeep Wrangler Sport New 2020 Jeep Wrangler Unlimited Sport 4WD SUV 31Dodge 200227"
+              ],
+              "globalId": [
+                "EBAY-MOTOR"
+              ],
+              "primaryCategory": [
+                {
+                  "categoryId": [
+                    "6285"
+                  ],
+                  "categoryName": [
+                    "Wrangler"
+                  ]
+                }
+              ],
+              "galleryURL": [
+                "https://thumbs4.ebaystatic.com/m/mPKKXZNvPeZJFkeautvALdA/140.jpg"
+              ],
+              "viewItemURL": [
+                "https://cgi.ebay.com/ebaymotors/2020-Jeep-Wrangler-Sport-/303341536335"
+              ],
+              "paymentMethod": [
+                "MOCC",
+                "PayPal",
+                "PaymentSeeDescription",
+                "CashInPerson"
+              ],
+              "autoPay": [
+                "true"
+              ],
+              "postalCode": [
+                "272**"
+              ],
+              "location": [
+                "Kernersville,NC,USA"
+              ],
+              "country": [
+                "US"
+              ],
+              "shippingInfo": [
+                {
+                  "shippingServiceCost": [
+                    {
+                      "@currencyId": "USD",
+                      "__value__": "0.0"
+                    }
+                  ],
+                  "shippingType": [
+                    "FreePickup"
+                  ],
+                  "shipToLocations": [
+                    "Worldwide"
+                  ]
+                }
+              ],
+              "sellingStatus": [
+                {
+                  "currentPrice": [
+                    {
+                      "@currencyId": "USD",
+                      "__value__": "15600.0"
+                    }
+                  ],
+                  "convertedCurrentPrice": [
+                    {
+                      "@currencyId": "USD",
+                      "__value__": "15600.0"
+                    }
+                  ],
+                  "bidCount": [
+                    "32"
+                  ],
+                  "sellingState": [
+                    "Active"
+                  ],
+                  "timeLeft": [
+                    "P0DT22H42M43S"
+                  ]
+                }
+              ],
+              "listingInfo": [
+                {
+                  "bestOfferEnabled": [
+                    "false"
+                  ],
+                  "buyItNowAvailable": [
+                    "true"
+                  ],
+                  "buyItNowPrice": [
+                    {
+                      "@currencyId": "USD",
+                      "__value__": "41715.0"
+                    }
+                  ],
+                  "convertedBuyItNowPrice": [
+                    {
+                      "@currencyId": "USD",
+                      "__value__": "41715.0"
+                    }
+                  ],
+                  "startTime": [
+                    "2019-10-30T12:28:08.000Z"
+                  ],
+                  "endTime": [
+                    "2019-11-06T12:28:08.000Z"
+                  ],
+                  "listingType": [
+                    "AuctionWithBIN"
+                  ],
+                  "gift": [
+                    "false"
+                  ],
+                  "watchCount": [
+                    "3"
+                  ]
+                }
+              ],
+              "condition": [
+                {
+                  "conditionId": [
+                    "1000"
+                  ],
+                  "conditionDisplayName": [
+                    "New"
+                  ]
+                }
+              ],
+              "isMultiVariationListing": [
+                "false"
+              ],
+              "topRatedListing": [
+                "true"
+              ]
+            }
+          ]
+        }
+      ],
+      "paginationOutput": [
+        {
+          "pageNumber": [
+            "1"
+          ],
+          "entriesPerPage": [
+            "2"
+          ],
+          "totalPages": [
+            "1"
+          ],
+          "totalEntries": [
+            "2"
+          ]
+        }
+      ],
+      "itemSearchURL": [
+        "https://motors.shop.ebay.com/6001/i.html?LH_BIN=1&LH_LocatedIn=1&modtimefrom=2019-11-05T12%3A11%3A46.469Z&_ddo=1&_fls=1&_ipg=2&_mtf=1.5607644444444444&_pgn=1&_salic=1%7C2"
+      ]
+    }
+  ]
+}

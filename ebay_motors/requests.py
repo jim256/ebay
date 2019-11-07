@@ -82,10 +82,8 @@ class EbayRequest(JsonRequest):
             "findItemsAdvancedRequest": {
                 "xmlns": "https://www.ebay.com/marketplace/search/v1/services",
                 "categoryId": "6001",  # All vehicle categories
-                "itemFilter": [
-                    {'name': 'LocatedIn', 'value': ['US', 'CA']},
-                    {'name': 'ModTimeFrom', 'value': cls.prior_run_date}
-                ],
+                # "itemFilter": [],
+                # "aspectFilters": [],
                 "paginationInput": {
                     "entriesPerPage": settings.get('EBAY_SEARCH_PAGESIZE', '100'),
                     "pageNumber": str(page),
@@ -94,7 +92,18 @@ class EbayRequest(JsonRequest):
             }
         }
         if settings.get('EBAY_SEARCH_ITEM_FILTERS'):
-            body['findItemsAdvancedRequest']['itemFilter'].extend(settings.get('EBAY_SEARCH_ITEM_FILTERS'))
+            filters = []
+            body['findItemsAdvancedRequest']['itemFilter'] = filters
+            for f in settings.get('EBAY_SEARCH_ITEM_FILTERS'):
+                if isinstance(f.get('value'), str):
+                    f['value'] = f.get('value').format(
+                        prior_run_date=cls.prior_run_date,
+                        # Add other values here to make them available for replacement in
+                        # item filters in settings
+                    )
+                filters.append(f)
+        if settings.get('EBAY_SEARCH_ASPECT_FILTERS'):
+            body['findItemsAdvancedRequest']['aspectFilter'] = settings.get('EBAY_SEARCH_ASPECT_FILTERS')
 
         return cls(
             settings['EBAY_SEARCH_URL'],

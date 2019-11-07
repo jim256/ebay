@@ -50,6 +50,7 @@ These are the most common places where changes would be made to tweak the execut
 `settings.py`
 
 - EBAY_SEARCH_ITEM_FILTERS
+- EBAY_SEARCH_ASPECT_FILTERS
 
 `pipelines.py`
 
@@ -60,4 +61,1345 @@ These are the most common places where changes would be made to tweak the execut
 `spiders/ebay.py`
 
 - parse_details() where the EbayListingItem is created from the API responses
+
+--
+
+*Available item filters with valid values*
+    https://developer.ebay.com/Devzone/finding/CallRef/types/ItemFilterType.html
+
+*Complete list of available aspect filters with valid values*
+    Drive Type
+        - 4WD
+        - AWD
+        - FWD
+        - RWD
+        - Not Specified
+    Vehicle Title
+        - Clean
+        - Flood, Water Damage
+        - Lemon & Manufacturer Buyback
+        - Rebuilt, Rebuildable & Reconstructed
+        - Salvage
+        - Not Specified
+    Model Year
+        - 2020
+        - 2019
+        - 2018
+        - 2017
+        - 2016
+        - 2015
+        - 2014
+        - 2013
+        - 2012
+        - 2011
+        - 2010
+        - 2009
+        - 2008
+        - 2007
+        - 2006
+        - 2005
+        - 2004
+        - 2003
+        - 2002
+        - 2001
+        - 2000
+        - 1999
+        - 1998
+        - 1997
+        - 1996
+        - 1995
+        - 1994
+        - 1993
+        - 1992
+        - 1991
+        - 1990
+        - 1989
+        - 1988
+        - 1987
+        - 1986
+        - 1985
+        - 1984
+        - 1983
+        - 1982
+        - 1981
+        - 1980
+        - 1979
+        - 1978
+        - 1977
+        - 1976
+        - 1975
+        - 1974
+        - 1973
+        - 1972
+        - 1971
+        - 1970
+        - 1969
+        - 1968
+        - 1967
+        - 1966
+        - 1965
+        - 1964
+        - 1963
+        - 1962
+        - 1961
+        - 1960
+        - 1959
+        - 1958
+        - 1957
+        - 1956
+        - 1955
+        - 1954
+        - 1953
+        - 1952
+        - 1951
+        - 1950
+        - 1949
+        - 1948
+        - 1947
+        - 1946
+        - 1945
+        - 1943
+        - 1942
+        - 1941
+        - 1940
+        - 1939
+        - 1938
+        - 1937
+        - 1936
+        - 1935
+        - 1934
+        - 1933
+        - 1932
+        - 1931
+        - 1930
+        - 1929
+        - 1928
+        - 1927
+        - 1926
+        - 1925
+        - 1924
+        - 1923
+        - 1922
+        - 1921
+        - 1920
+        - 1918
+        - 1914
+        - 1911
+        - Not Specified
+    Make
+        - Acura
+        - Alfa Romeo
+        - AMC
+        - American LaFrance
+        - AM General
+        - Ariel
+        - Aston Martin
+        - Audi
+        - Austin
+        - Austin Healey
+        - Autocar
+        - Bentley
+        - BMW
+        - Borgward
+        - Bricklin
+        - Bugatti
+        - Buick
+        - Cadillac
+        - Chevrolet
+        - Chrysler
+        - Citroën
+        - Crosley
+        - Daihatsu
+        - Darrin
+        - Datsun
+        - DeLorean
+        - DeSoto
+        - De Tomaso
+        - DKW
+        - Dodge
+        - Duesenberg
+        - Edsel
+        - Essex
+        - Excalibur
+        - Ferrari
+        - Fiat
+        - Fisker
+        - Ford
+        - Freightliner
+        - Geo
+        - GMC
+        - Graham
+        - Henry J
+        - Hino
+        - Honda
+        - Hudson
+        - Hummer
+        - Hupmobile
+        - Hyundai
+        - Infiniti
+        - International Harvester
+        - Iso
+        - Isuzu
+        - Jaguar
+        - Jeep
+        - Jensen
+        - Kaiser
+        - Kenworth
+        - KIA
+        - Lada
+        - Laforza
+        - Lamborghini
+        - Lancia
+        - Land Rover
+        - LaSalle
+        - Lexus
+        - Lincoln
+        - Lotus
+        - Mack
+        - Maserati
+        - Maybach
+        - Mazda
+        - McLaren
+        - Mercedes-Benz
+        - Mercury
+        - MG
+        - Mini
+        - Mitsubishi
+        - Morgan
+        - Morris
+        - Nash
+        - Nissan
+        - Oldsmobile
+        - Other Makes
+        - Packard
+        - Peterbilt
+        - Peugeot
+        - Plymouth
+        - Pontiac
+        - Porsche
+        - Qvale
+        - Ram
+        - Rambler
+        - Renault
+        - Rolls-Royce
+        - Rover
+        - Saab
+        - Saleen
+        - Saturn
+        - Scion
+        - Shelby
+        - Simca
+        - Smart
+        - SRT
+        - Stewart & Stevenson
+        - Studebaker
+        - Subaru
+        - Sunbeam
+        - Suzuki
+        - Swallow
+        - Tatra
+        - Tesla
+        - Toyota
+        - Triumph
+        - Vauxhall
+        - Volkswagen
+        - Volvo
+        - VPG
+        - Willys
+        - Windsor
+        - Wolseley
+        - Not Specified
+    Model
+        - 1/2 Ton Pickup
+        - 100
+        - 100-6
+        - 122
+        - 124 Spider
+        - 131
+        - 142
+        - 1500
+        - 1600
+        - 166
+        - 170 D
+        - 170 V
+        - 180D
+        - 190-Series
+        - 1-Series
+        - 200
+        - 2000
+        - 2000c
+        - 2002
+        - 2002tii
+        - 200 Series
+        - 200-Series
+        - 240
+        - 240SX
+        - 2500
+        - 2500 Series
+        - 2600
+        - 2800CS
+        - 280ZX
+        - 2R11
+        - 2R5
+        - 2-Series
+        - 3
+        - 3000
+        - 3000GT
+        - 300 Series
+        - 300-Series
+        - 300ZX
+        - 308
+        - 3100
+        - 328
+        - 330
+        - 348
+        - 3500
+        - 350Z
+        - 353
+        - 355
+        - 356
+        - 360
+        - 365 GTC/4
+        - 370
+        - 370Z
+        - 3-Series
+        - 4/4
+        - 400 Series
+        - 400-Series
+        - 430
+        - 4300
+        - 439
+        - 440
+        - 442
+        - 4500
+        - 456
+        - 458
+        - 4700
+        - 4700LP
+        - 488
+        - 4C
+        - 4Runner
+        - 4-Series
+        - 500
+        - 500L
+        - 500-Series
+        - 500X
+        - 512 TR
+        - 544
+        - 550
+        - 5500
+        - 57
+        - 570
+        - 570GT
+        - 570S
+        - 575
+        - 599
+        - 5-Series
+        - 600
+        - 600D
+        - 600-Series
+        - 612
+        - 62
+        - 626
+        - 650S
+        - 675LT
+        - 6-Series
+        - 718
+        - 740
+        - 7500
+        - 7-Series
+        - 80
+        - 850
+        - 86
+        - 88
+        - 8-Series
+        - 90
+        - 900
+        - 911
+        - 912
+        - 914
+        - 918 Spyder
+        - 924
+        - 928
+        - 9-2X
+        - 9-3
+        - 930
+        - 940
+        - 944
+        - 9-5
+        - 964
+        - 968
+        - 9-7x
+        - A3
+        - A4
+        - A5
+        - A6
+        - A7
+        - A8
+        - Acadia
+        - Accent
+        - Accord
+        - ACL
+        - A-Class
+        - Aerostar
+        - Alero
+        - Allante
+        - Allroad
+        - Alpina B6 xDrive Gran Coupe
+        - Alpine
+        - Altima
+        - Americar
+        - AMG GT
+        - AMG GT S
+        - Amigo
+        - AMX
+        - Anglia
+        - Armada
+        - Arnage
+        - Ascender
+        - Aspen
+        - Astro
+        - Atlas
+        - ATS
+        - Aura
+        - Avalanche
+        - Avalon
+        - Aventador
+        - Aveo
+        - AX
+        - Axiom
+        - Azera
+        - Azure
+        - Baja
+        - Barracuda
+        - Beetle - Classic
+        - Beetle-New
+        - Bel Air/150/210
+        - Belvedere
+        - Belvedere II
+        - Bentayga
+        - Beretta
+        - Big Boy Series 18
+        - Biscayne
+        - Blazer
+        - Bobcat
+        - Bolt EV
+        - Bonneville
+        - Borrego
+        - Boxster
+        - Bravada
+        - Bronco
+        - Bronco II
+        - Brookwood
+        - Brougham
+        - BRZ
+        - Bus/Vanagon
+        - C/K Pickup 1500
+        - C/K Pickup 2500
+        - C/K Pickup 3500
+        - C/V
+        - C-10
+        - C10 Pickup
+        - C15
+        - C1500
+        - C20 Pickup
+        - C30
+        - C4500 Kodiak
+        - C4500 Topkick
+        - C5000 Topkick
+        - C600
+        - C70
+        - C7000
+        - C7000 Topkick
+        - C7500 Kodiak
+        - Caballero
+        - Cabrio
+        - Cabriolet
+        - Cadenza
+        - Calais
+        - Caliber
+        - California
+        - Camaro
+        - Cambridge
+        - Camry
+        - Canyon
+        - Capri
+        - Caprice
+        - Captiva Sport
+        - Caravan
+        - Caribbean
+        - Carrera GT
+        - Cascada
+        - Catalina
+        - Cavalier
+        - Cayenne
+        - Cayman
+        - CC
+        - C-Class
+        - Celica
+        - Centurion
+        - Century
+        - Challenger
+        - Champion
+        - Charger
+        - Cherokee
+        - Chevelle
+        - Chevy
+        - Chevy II
+        - Cheyenne
+        - Chieftain
+        - C-HR
+        - City-Coupe
+        - Civic
+        - CJ
+        - CJ2A
+        - CK
+        - CL
+        - CLA-Class
+        - Classic
+        - Classic Mini
+        - CL-Class
+        - Clipper
+        - CLK-Class
+        - CLS-Class
+        - Club
+        - Clubman
+        - C-Max
+        - Cobalt
+        - Cobra
+        - Colorado
+        - Comet
+        - Commander
+        - Commando
+        - Compass
+        - Concord
+        - Concorde
+        - Confederate
+        - Continental
+        - Continental Flying Spur
+        - Continental GT
+        - Cooper
+        - Cooper Countryman
+        - Cooper S
+        - Corniche
+        - Corolla
+        - Coronet
+        - Corvair
+        - Corvette
+        - Cougar
+        - Countach
+        - Countryman
+        - Country Sedan
+        - Country Squire
+        - Coupe
+        - Crestline
+        - Crossfire
+        - Crosstrek
+        - Crown Victoria
+        - Cruze
+        - CR-V
+        - CRX
+        - CR-Z
+        - CT
+        - CT 200h
+        - CT6
+        - CTS
+        - Cube
+        - Cuda
+        - Custom
+        - Custom Cruiser
+        - Customline
+        - Custom Six
+        - Cutlass
+        - CX-3
+        - CX-5
+        - CX-7
+        - CX-9
+        - Cyclone
+        - D100
+        - D150
+        - Dakota
+        - Dart
+        - Dawn
+        - Daytona
+        - DB
+        - DB11
+        - DB7
+        - DB9
+        - DBS
+        - Defender
+        - Del Sol
+        - Deluxe
+        - Deluxe Eight
+        - DeVille
+        - Diablo
+        - Discovery
+        - DR
+        - DTS
+        - Durango
+        - Duster
+        - E-350 Econoline Club Wagon
+        - E-450 Super Duty
+        - Eagle
+        - E-Class
+        - Eclipse
+        - Econoline
+        - EcoSport
+        - Edge
+        - Eighty-Eight
+        - Elan
+        - Elantra
+        - El Camino
+        - Eldorado
+        - Electra
+        - Element
+        - Elise
+        - ELR
+        - Enclave
+        - Encore
+        - Envision
+        - Envoy
+        - Eos
+        - Equinox
+        - Equus
+        - ES
+        - ES 350
+        - Escalade
+        - Escape
+        - Escort
+        - E-Series Van
+        - Esprit
+        - Estate
+        - E-Type
+        - Europa
+        - EuroVan
+        - Evolution
+        - Evoque
+        - Evora
+        - EX
+        - Excursion
+        - Expedition
+        - Explorer
+        - Explorer Sport
+        - Explorer Sport Trac
+        - Express
+        - F1
+        - F-100
+        - F12 Berlinetta
+        - F-150
+        - F2
+        - F-250
+        - F-350
+        - F430
+        - F-450
+        - F-500
+        - F-550
+        - F600
+        - F650
+        - F750
+        - F85
+        - Fairlane
+        - Falcon
+        - FF
+        - Fiero
+        - Fiesta
+        - Firebird
+        - Fit
+        - Five Hundred
+        - FJ Cruiser
+        - Fleetline
+        - Fleetmaster
+        - Fleetwood
+        - Flex
+        - Flying Spur
+        - Focus
+        - Ford GT
+        - Forester
+        - Forte
+        - Fortwo
+        - Freestar
+        - Frontier
+        - FR-S
+        - F Super Duty
+        - F-Type
+        - Fury
+        - Fusion
+        - FX
+        - G
+        - G10
+        - G20 Van
+        - G35
+        - G37
+        - G5
+        - G6
+        - G8
+        - Galant
+        - Galaxie
+        - Gallardo
+        - G-Class
+        - Genesis
+        - Ghibli
+        - Ghost
+        - Giulia
+        - Giulietta
+        - GL
+        - Gladiator
+        - GL-Class
+        - GLI
+        - GLK-Class
+        - Golf
+        - Golf R
+        - Gran
+        - Grand Am
+        - Grand Caravan
+        - Grand Cherokee
+        - Grand Marquis
+        - Grand National
+        - Grand Prix
+        - Grand Vitara
+        - Gran Sport
+        - Gran Torino
+        - Gran Turismo
+        - GS
+        - GS300
+        - GS 350
+        - GS 400
+        - GS 455
+        - GT
+        - GT40
+        - GT6
+        - GTC4Lusso
+        - GTI
+        - GTO
+        - GT-R
+        - GTV
+        - GTX
+        - GX
+        - H1
+        - H2
+        - H3
+        - H3T
+        - HHR
+        - Highlander
+        - Hornet
+        - HR-V
+        - Huracan
+        - i3
+        - I35
+        - i8
+        - iA
+        - ILX
+        - Impala
+        - Imperial
+        - Impreza
+        - Indy
+        - Insight
+        - Integra
+        - Intrepid
+        - Ion
+        - IS
+        - IS F
+        - J10
+        - J30
+        - Javelin
+        - Jetta
+        - Jimmy
+        - Journey
+        - Juke
+        - JX
+        - K1500
+        - K2500
+        - K3500
+        - K5 Blazer
+        - Karma
+        - Karmann Ghia
+        - Kicks
+        - Kizashi
+        - L-39
+        - Lagonda
+        - Lancer
+        - Land Cruiser
+        - Lark
+        - LC500
+        - Leaf
+        - LeBaron
+        - Legacy
+        - Legend
+        - Le Mans
+        - LeSabre
+        - Levante
+        - Liberty
+        - Limited
+        - LR2
+        - LR3
+        - LR4
+        - LS
+        - L-Series
+        - LTD
+        - Lucerne
+        - LX
+        - M
+        - M2
+        - M3
+        - M35
+        - M4
+        - M5
+        - M6
+        - Macan
+        - Magnum
+        - Malibu
+        - Marauder
+        - Mariner
+        - Mark IV
+        - Mark Series
+        - Master
+        - Maxima
+        - Mazda3
+        - Mazda5
+        - Mazda6
+        - M-Class
+        - MDX
+        - Metris
+        - Metro
+        - MGA
+        - MGB
+        - Miata
+        - Micra
+        - Midget
+        - Mighty Max
+        - Milan
+        - Mirage
+        - Mirai
+        - Mistral
+        - MKC
+        - MKS
+        - MKT
+        - MKX
+        - MKZ/Zephyr
+        - Model 1004
+        - Model 115-C
+        - Model 120 C
+        - Model 40
+        - Model 48
+        - Model 50
+        - Model 633
+        - Model 68
+        - Model A
+        - Model AA
+        - Model B
+        - Model S
+        - Model T
+        - Model TT
+        - Model X
+        - Monarch
+        - Mondial
+        - Montclair
+        - Monte Carlo
+        - Montego
+        - Monterey
+        - Montero
+        - Monza
+        - MP4-12C
+        - MPV
+        - MR2
+        - M Roadster &amp; Coupe
+        - Mulsanne
+        - Murano
+        - Murcielago
+        - Mustang
+        - MX-5 Miata
+        - MXT
+        - Nash-Healey
+        - Navigator
+        - Neon
+        - Newport
+        - New Yorker
+        - Ninety-Eight
+        - Nomad
+        - Nova
+        - NPR
+        - NPR-HD
+        - NQR
+        - NRR
+        - NSX
+        - NV
+        - NX
+        - NX200t
+        - Odyssey
+        - Optima
+        - Other
+        - Outback
+        - Outlander
+        - Outlander Sport
+        - P1
+        - P12 Special Deluxe
+        - P2 Deluxe
+        - P30
+        - P3500
+        - Pacer
+        - Pacifica
+        - Panamera
+        - Pantera
+        - Parisienne
+        - Park Avenue
+        - Park Lane
+        - Park Lane Wagon
+        - Passat
+        - Passport
+        - Pathfinder
+        - Patriot
+        - Patrol
+        - Phaeton
+        - Phantom
+        - Phoenix
+        - Pickup
+        - Pilot
+        - Pinto
+        - Plaza
+        - Plus Four
+        - Polara
+        - Police Interceptor Sedan
+        - Police Interceptor Utility
+        - Power Wagon
+        - Prelude
+        - Previa
+        - Prius
+        - Prius C
+        - Prius V
+        - Probe
+        - ProMaster
+        - Prowler
+        - PT Cruiser
+        - PV 444
+        - Q3
+        - Q3 Quattro
+        - Q45
+        - Q5
+        - Q50
+        - Q60
+        - Q7
+        - Q70
+        - Quattro
+        - Quattroporte
+        - Quest
+        - QX30
+        - QX4
+        - QX50
+        - QX56
+        - QX60
+        - QX70
+        - QX80
+        - R32
+        - R8
+        - Rabbit
+        - Ram 1500
+        - Ram 2500
+        - Ram 3500
+        - Ram 4500
+        - Ram 5500
+        - Rambler
+        - Ramcharger
+        - Ram Van
+        - Ranchero
+        - Ranger
+        - Range Rover
+        - Range Rover Sport
+        - Rapide
+        - RAV4
+        - RC
+        - RC200t
+        - RC300
+        - RC350
+        - RC F
+        - R-Class
+        - RDX
+        - Regal
+        - Renegade
+        - Ridgeline
+        - Rio
+        - Riviera
+        - RL
+        - RLX
+        - Roadmaster
+        - Road Runner
+        - Roadster
+        - Rogue
+        - Routan
+        - Royal
+        - RS4
+        - RS5
+        - RS6
+        - RS7
+        - RSX
+        - R Type
+        - RX
+        - RX-2
+        - RX-3
+        - RX-7
+        - RX-8
+        - S-10
+        - S15
+        - S1 Series
+        - S2000
+        - S3
+        - S3 Series
+        - S4
+        - S40
+        - S5
+        - S6
+        - S60
+        - S7
+        - S70
+        - S8
+        - S80
+        - S90
+        - Sable
+        - Safari
+        - Samurai
+        - Santa Fe
+        - Saratoga
+        - Satellite
+        - Savana
+        - Savoy
+        - SC
+        - Scamp
+        - S-Class
+        - Scotsman
+        - Scout
+        - Sebring
+        - Sedan Delivery
+        - Sedona
+        - Sentra
+        - Sequoia
+        - Series 40
+        - Series 60
+        - Series 61
+        - Series 62
+        - Series 66
+        - Series 75
+        - Series 75 Fleetwood
+        - Series 90
+        - Seville
+        - Sienna
+        - Sierra 1500
+        - Sierra 2500
+        - Sierra 3500
+        - Silverado 1500
+        - Silverado 2500
+        - Silverado 3500
+        - Silver Cloud
+        - Silver Seraph
+        - Silver Shadow
+        - Silver Spirit/Spur/Dawn
+        - Sky
+        - Skylark
+        - Skyline
+        - Skyliner
+        - SL-Class
+        - SLK-Class
+        - SLR McLaren
+        - SLS AMG
+        - Solara
+        - Solstice
+        - Sonata
+        - Sonic
+        - Sonoma
+        - Sorento
+        - Soul
+        - Spark
+        - Special
+        - Special Deluxe
+        - Special Six
+        - Spectra
+        - Spider
+        - Spitfire
+        - Sport
+        - Sportage
+        - Sprinter
+        - Sprite
+        - Spyder
+        - SQ5
+        - Squareback
+        - SRX
+        - SS
+        - SS100
+        - S-Series
+        - SSR
+        - Stag
+        - Standard
+        - Standard Eight
+        - Starfire
+        - State Commander
+        - Station Wagon
+        - Stealth
+        - STS
+        - Styleline Deluxe
+        - S-Type
+        - Suburban
+        - Sunfire
+        - Sunliner
+        - Super
+        - Superamerica
+        - Superbird
+        - Super Deluxe
+        - Super Eight
+        - Super Seven
+        - Supra
+        - T2 Series
+        - Tacoma
+        - Tahoe
+        - Taurus
+        - Taurus X/FreeStyle
+        - tC
+        - TC Maserati
+        - Tempest
+        - Tempo
+        - Tercel
+        - Terrain
+        - Terraplane
+        - Testarossa
+        - Thing
+        - Thunderbird
+        - Tiger
+        - Tiguan
+        - Titan
+        - TL
+        - TLX
+        - Torino
+        - Toronado
+        - Touareg
+        - Town & Country
+        - Town Car
+        - TR250
+        - TR3
+        - TR3A
+        - TR4
+        - TR4A
+        - TR-6
+        - TR7
+        - Tracker
+        - Trailblazer
+        - Trans Am
+        - Transit
+        - Transit-150
+        - Transit-250
+        - Transit-350
+        - Transit-350 HD
+        - Transit Connect
+        - Transporter
+        - Traverse
+        - Trax
+        - Truck
+        - T-Series
+        - TSX
+        - TT
+        - Tucson
+        - Tundra
+        - Turbo R
+        - Typhoon
+        - Uplander
+        - Urraco
+        - V12
+        - V60
+        - V60 Cross Country
+        - V70
+        - V-8
+        - Valiant
+        - Van
+        - Vandura
+        - Vanquish
+        - Vantage
+        - Vega
+        - VehiCROSS
+        - Veloster
+        - Venza
+        - Veracruz
+        - Verano
+        - Versa
+        - Versailles
+        - Veyron
+        - Vibe
+        - Victoria
+        - Victory Six
+        - Viper
+        - Virage
+        - VNL
+        - Volare
+        - Volt
+        - Voyager
+        - Vue
+        - Wagoneer
+        - Wagovan
+        - Whippet Model 96
+        - Whippet Model 96A
+        - Wildcat
+        - Willys
+        - Windsor
+        - Windstar
+        - Wraith
+        - Wrangler
+        - WRX
+        - X1
+        - X3
+        - X4
+        - X5
+        - X6
+        - xA
+        - xB
+        - XC (Cross Country)
+        - XC60
+        - XC70
+        - XC90
+        - xD
+        - XE
+        - XF
+        - XG350
+        - XJ
+        - XJ12
+        - XJ6
+        - XJ8
+        - XJR
+        - XJS
+        - XK
+        - XK120
+        - XK8
+        - XKE
+        - XKR
+        - XLR
+        - XT5
+        - Xterra
+        - XTS
+        - X-Type
+        - XV Crosstrek
+        - Yaris
+        - Yeoman
+        - Yukon
+        - Z3
+        - Z4
+        - Z8
+        - ZDX
+        - Zephyr
+        - Z-Series
+        - Not Specified
+    For Sale By
+        - Dealer
+        - Private Seller
+        - Not Specified
+    Body Type
+        - Cab & Chassis
+        - Convertible
+        - Coupe
+        - Crew Cab Pickup
+        - Extended Cab Pickup
+        - Extended Crew Cab Pickup
+        - Extended Passenger Van
+        - Fastback
+        - Hatchback
+        - Hearse
+        - Limousine
+        - Minivan
+        - Sedan
+        - Standard Cab Pickup
+        - Standard Passenger Van
+        - SUV
+        - Van Camper
+        - Wagon
+        - Not Specified
+    Engine Size
+        - 0-0.9L
+        - 1.0-1.9L
+        - 2.0-2.9L
+        - 3.0-3.9L
+        - 4.0-4.9L
+        - 5.0-5.9L
+        - 6.0-7.0L
+        - More than 7.0L
+        - Not Specified
+    Transmission
+        - Automatic
+        - Manual
+        - Not Specified
+    Fuel Type
+        - Bi-Fuel
+        - Biodiesel
+        - CNG
+        - Diesel
+        - Electric
+        - Flex Fuel Vehicle
+        - Gasoline
+        - Hybrid-Electric
+        - LPG
+        - Steam
+        - Not Specified
+    Vehicle Mileage
+        - Less than 1,000 miles
+        - Less than 5,000 miles
+        - Less than 7,500 miles
+        - Less than 10,000 miles
+        - Less than 20,000 miles
+        - Less than 36,000 miles
+        - Less than 50,000 miles
+        - Less than 75,000 miles
+        - Less than 100,000 miles
+        - Less than 125,000 miles
+        - Less than 150,000 miles
+        - Less than 175,000 miles
+        - 200,000 miles and more
+        - Not Specified
+    Exterior Color
+        - Black
+        - Blue
+        - Brown
+        - Burgundy
+        - Gold
+        - Gray
+        - Green
+        - Orange
+        - Purple
+        - Red
+        - Silver
+        - Tan
+        - Teal
+        - White
+        - Yellow
+        - Not Specified
+    Interior Color
+        - Black
+        - Blue
+        - Brown
+        - Burgundy
+        - Gold
+        - Gray
+        - Green
+        - Red
+        - Tan
+        - Teal
+        - White
+        - Not Specified
+    Number of Cylinders
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 8
+        - 10
+        - 12
+        - Not Specified
+    Options
+        - 4-Wheel Drive
+        - Cassette Player
+        - CD Player
+        - Convertible
+        - Leather Seats
+        - Sunroof
+        - Not Specified
+    Disability Equipped
+        - No
+        - Yes
+        - Not Specified
+    Drive Side
+        - Right-hand drive
+        - Left-hand drive
+        - Not Specified
 

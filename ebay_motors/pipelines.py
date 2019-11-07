@@ -61,6 +61,8 @@ class EbayListingCleanserPipeline(object):
             if not item['num_cylinders'].isnumeric():
                 # e.g. 'V8' -- strip out all non-numerics
                 item['num_cylinders'] = re.sub(r'\D', '', item['num_cylinders'])
+            if not item['num_cylinders']:
+                item['num_cylinders'] = None
 
         if item.get('mileage'):
             if not item['mileage'].isnumeric():

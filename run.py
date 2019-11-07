@@ -56,13 +56,14 @@ def init_settings(args) -> dict:
     settings = {k: v.value for k, v in project_settings.attributes.items()}
 
     # Override with config file
-    try:
-        with open(args.configfile) as f:
-            config = json.load(f)
-    except Exception as e:
-        print(f'Failed to load config from {args.configfile}: {e}', file=sys.stderr)
-        sys.exit(1)
-    settings.update(config)
+    if args.configfile:
+        try:
+            with open(args.configfile) as f:
+                config = json.load(f)
+        except Exception as e:
+            print(f'Failed to load config from {args.configfile}: {e}', file=sys.stderr)
+            sys.exit(1)
+        settings.update(config)
 
     # Optionally override with command line
     if args.output:

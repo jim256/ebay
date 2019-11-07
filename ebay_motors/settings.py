@@ -32,56 +32,34 @@ EBAY_AUTH_URL = 'https://api.ebay.com/identity/v1/oauth2/token'
 EBAY_AUTH_SCOPES = 'https://api.ebay.com/oauth/api_scope'
 EBAY_SEARCH_TIMESTAMP_PATH = project_dir / 'lastrun.txt'
 EBAY_SEARCH_URL = 'https://svcs.ebay.com/services/search/FindingService/v1'
-# List of available item filters:
+# Available item filters with valid values:
 # https://developer.ebay.com/Devzone/finding/CallRef/types/ItemFilterType.html
+# Runtime variables are available for use in these values:
+#   prior_run_date
+#
+# e.g.
+#   {'name': 'ModTimeFrom', 'value': '{prior_run_date}'}
+#   {'name': 'StartTimeFrom', 'value': '{prior_run_date}'}
 EBAY_SEARCH_ITEM_FILTERS = [
-    {'name': 'ListingType', 'value': ["AuctionWithBIN", "Classified", "FixedPrice"]},
-    # {'name': 'Condition', 'value': 'Used'},
-    # {'name': 'MaxPrice', 'value': '20000'},
+    {"name": "LocatedIn", "value": ["US", "CA"]},
+    {"name": "ModTimeFrom", "value": "{prior_run_date}"},
+    # {"name": "StartTimeFrom", "value": "{prior_run_date}"},
+    {"name": "ListingType", "value": ["AuctionWithBIN", "Classified", "FixedPrice"]},
+    # {"name": "Condition", "value": "Used"},
+    # {"name": "MinPrice", "value": "10000"},
+    # {"name": "MaxPrice", "value": "20000"},
+]
+EBAY_SEARCH_ASPECT_FILTERS = [
+    # {"aspectName": "Vehicle Title", "aspectValueName": "Clean"},
+    # {"aspectName": "Model Year", "aspectValueName": ["2016", "2017"]},
+    # {"aspectName": "Make", "aspectValueName": "Ford"},
+    # {"aspectName": "Model", "aspectValueName": "Expedition"},
+    # {"aspectName": "Transmission", "aspectValueName": "Automatic"},
+    # {"aspectName": "Vehicle Mileage", "aspectValueName": "Less than 36,000 miles"},
+    # {"aspectName": "Exterior Color", "aspectValueName": ["Black", "White"]}
 ]
 EBAY_SEARCH_PAGESIZE = '100'  # number of items per page in search results 1..100
 EBAY_DETAILS_URL = 'http://open.api.ebay.com/shopping'
-
-# SUPPORTED EBAY ITEM FILTER TYPES
-# 'AvailableTo',
-# 'BestOfferOnly',
-# 'CharityOnly',
-# 'Condition',
-# 'Currency',
-# 'EndTimeFrom',
-# 'EndTimeTo',
-# 'ExcludeAutoPay',
-# 'ExcludeCategory',
-# 'ExcludeSeller',
-# 'ExpeditedShippingType',
-# 'FeaturedOnly',
-# 'FeedbackScoreMax',
-# 'FeedbackScoreMin',
-# 'FreeShippingOnly',
-# 'GetItFastOnly',
-# 'HideDuplicateItems',
-# 'ListedIn',
-# 'ListingType',
-# 'LocalPickupOnly',
-# 'LocalSearchOnly',
-# 'LocatedIn',
-# 'LotsOnly',
-# 'MaxBids',
-# 'MaxDistance',
-# 'MaxHandlingTime',
-# 'MaxPrice',
-# 'MaxQuantity',
-# 'MinBids',
-# 'MinPrice',
-# 'MinQuantity',
-# 'ModTimeFrom',
-# 'PaymentMethod',
-# 'ReturnsAcceptedOnly',
-# 'Seller',
-# 'SellerBusinessType',
-# 'TopRatedSellerOnly',
-# 'ValueBoxInventory',
-# 'WorldOfGoodOnly',
 
 RETRY_ENABLED = False
 

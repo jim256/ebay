@@ -2,11 +2,11 @@
 Ebay Motors
 ===========
 
-.. image:: https://img.shields.io/badge/python-3.7%20%7C%203.8-blue
+.. image:: https://img.shields.io/badge/python%203.7-scrapy%201.7,%201.8-blue
    :alt: Supported Python Versions
 
-.. image:: https://img.shields.io/badge/scrapy-1.7%20%7C%201.8-orange
-   :alt: Supported Scrapy Versions
+.. image:: https://img.shields.io/badge/python%203.8-scrapy%201.8-orange
+   :alt: Supported Python Versions
 
 Overview
 ========

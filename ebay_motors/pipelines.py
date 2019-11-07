@@ -39,12 +39,13 @@ class EbayListingCleanserPipeline(object):
         self.logger.debug(f'Processing item {item.get("source_id")}')
 
         # clean out the 'not specified's
-        for name in [k for k, v in item.items() if v and v.lower() == 'not specified']:
+        for name in [k for k, v in item.items() if v and v.lower() in ['not specified', '--']]:
             del item[name]
 
         item['source'] = 'ebay'
         item['date_found'] = arrow.get(EbayRequest.current_run_date).format(_DATE_FORMAT)
         item['date_updated'] = arrow.get(EbayRequest.current_run_date).format(_DATE_FORMAT)
+        item['url'] = f'ebay.com/itm/{item.get("source_id")}'
 
         if item.get('details'):
             item['details'] = self._ascii_only(item['details'])
@@ -100,6 +101,10 @@ class EbayListingCleanserPipeline(object):
             except:
                 self.logger.warning(f'Could not parse `date_listed` value of {item.get("date_listed")}')
 
+        if item.get('bin_price'):
+            # Override current price with BuyItNow price if there is one
+            item['price'] = item.get('bin_price')
+
         return item
 
     def _map_field(self, mapping: dict, value):
@@ -148,6 +153,7 @@ class MySQLExportPipeline(object):
         return cls(dbpool)
 
     def process_item(self, item, spider):
+        spider.processed += 1
         # run db query in the thread pool
         d = self.dbpool.runInteraction(self._do_upsert, item, spider)
         d.addErrback(self._handle_error, item, spider)
@@ -202,6 +208,7 @@ class MySQLExportPipeline(object):
 
     def _handle_error(self, failure, item, spider):
         """Handle occurred on db interaction."""
+        spider.errors += 1
         self.logger.error(f'Error writing to the database: {failure}')
 
 

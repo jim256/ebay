@@ -15,6 +15,9 @@ class EbaySpider(scrapy.spiders.Spider):
 
     name = 'ebay'
 
+    processed = 0
+    errors = 0
+
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
         spider = super().from_crawler(crawler, *args, **kwargs)
@@ -25,6 +28,9 @@ class EbaySpider(scrapy.spiders.Spider):
     def spider_closed(self, spider):
         self.logger.info(f'Updating prior_run_date timestamp file with {EbayRequest.current_run_date}')
         open(self.settings.get('EBAY_SEARCH_TIMESTAMP_PATH'), 'w').write(EbayRequest.current_run_date)
+        self.logger.info(f'\n-- EXECUTION STATS --\n'
+                         f'Processed {self.processed} items.\n'
+                         f'Hit {self.errors} errors.\n')
 
     def start_requests(self):
         """Entry point for scraping."""
@@ -146,6 +152,7 @@ class EbaySpider(scrapy.spiders.Spider):
                 'date_listed': item.get('listingInfo', [{}])[0].get('startTime')[0],
                 'favorited': item.get('listingInfo', [{}])[0].get('watchCount', [None])[0],
 
+                'bin_price': detail.xpath('ConvertedBuyItNowPrice/text()').get(),
                 'page_views': detail.xpath('HitCount/text()').get(),
                 'seller_type': detail.xpath('ItemSpecifics/NameValueList[Name="For Sale By"]/Value/text()').get(),
                 'details': detail.xpath('Description/text()').get(),
@@ -167,10 +174,12 @@ class EbaySpider(scrapy.spiders.Spider):
             })
 
     def auth_error(self, failure):
+        self.errors += 1
         self.logger.error(repr(failure))
         self.logger.error(failure.value.response.body)
 
     def search_error(self, failure):
+        self.errors += 1
         self.logger.error(repr(failure))
         self.logger.error(failure.value.response.body)
 
@@ -179,6 +188,7 @@ class EbaySpider(scrapy.spiders.Spider):
         # synchronization is less than the 2 hour token expiration window.
 
     def detail_error(self, failure):
+        self.errors += 1
         self.logger.error(repr(failure))
         self.logger.error(failure.value.response.body)
 

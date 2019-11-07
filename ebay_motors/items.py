@@ -11,6 +11,7 @@ class EbayListingItem(scrapy.Item):
     source = scrapy.Field(exclude_update=True)
     source_id = scrapy.Field(serializer=int, exclude_update=True)
     price = scrapy.Field(serializer=int)
+    bin_price = scrapy.Field(exclude_insert=True, exclude_update=True)
     year = scrapy.Field(serializer=int)
     make = scrapy.Field()
     model = scrapy.Field()

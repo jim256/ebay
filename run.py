@@ -1,5 +1,6 @@
 """Executor for scrapy spiders."""
 import argparse
+import arrow
 import json
 import logging.handlers
 import os
@@ -29,7 +30,7 @@ def parse_args() -> argparse.Namespace:
                         help='Overrides scrapy LOG_LEVEL setting.')
     parser.add_argument('--logfile',
                         type=lambda x: pathlib.Path(x).absolute(),
-                        default=pathlib.Path(__file__).absolute().parent / 'logs' / '{}.log',
+                        default=pathlib.Path(__file__).absolute().parent / 'logs' / '{spider}.log',
                         help=('Path to log file. \n'
                               'This will rotate on each execution, keeping the last '
                               '--log-backup-count files. \n'
@@ -39,7 +40,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--log-backup-count',
                         type=int,
                         default=50,
-                        help='Number of prior log files to keep. (default: 50)')
+                        help='Number of prior log files of the same name to keep. (default: 50)')
     parser.add_argument('--log-to-console',
                         action='store_true',
                         help='Output log events to the console in addition to --logfile (default: False)')
@@ -72,7 +73,9 @@ def init_settings(args) -> dict:
         settings['FEED_FORMAT'] = args.output_format
     if args.loglevel:
         settings['LOG_LEVEL'] = args.loglevel
-    settings['LOG_FILE'] = None if args.logfile == '-' else str(args.logfile).format(args.spider)
+    settings['LOG_FILE'] = None if args.logfile == '-' else str(args.logfile).format(spider=args.spider,
+                                                                                     date=arrow.utcnow().format('MM-DD-YY'),
+                                                                                     time=arrow.utcnow().format('HH-mm-ss'))
     settings['LOG_TO_CONSOLE'] = args.log_to_console
 
     return settings

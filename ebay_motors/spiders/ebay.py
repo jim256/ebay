@@ -26,8 +26,11 @@ class EbaySpider(scrapy.spiders.Spider):
         return spider
 
     def spider_closed(self, spider):
-        self.logger.info(f'Updating prior_run_date timestamp file with {EbayRequest.current_run_date}')
-        open(self.settings.get('EBAY_SEARCH_TIMESTAMP_PATH'), 'w').write(EbayRequest.current_run_date)
+        if not self.errors:
+            self.logger.info(f'Updating prior_run_date timestamp file with {EbayRequest.current_run_date}')
+            open(self.settings.get('EBAY_SEARCH_TIMESTAMP_PATH'), 'w').write(EbayRequest.current_run_date)
+        else:
+            self.logger.info('Not updating prior_run_date due to processing errors.')
         self.logger.info(f'\n-- EXECUTION STATS --\n'
                          f'Processed {self.processed} items.\n'
                          f'Hit {self.errors} errors.\n')
@@ -86,7 +89,8 @@ class EbaySpider(scrapy.spiders.Spider):
             return
 
         # Check status of response
-        if search_resp['ack'] in ['Failure', 'PartialFailure']:  # Other values are 'Success', 'Warning'
+        if search_resp['ack'] and search_resp['ack'][0] in ['Failure', 'PartialFailure']:  # Other values are 'Success', 'Warning'
+            self.errors += 1
             self.logger.error(f'Error(s) returned from search: {search_resp["errorMessage"]}')
             return
 
@@ -107,7 +111,7 @@ class EbaySpider(scrapy.spiders.Spider):
         # Take the high level info and process the items in batches
         # eBay currently only supports batches of 20 items
         batch_num = 0
-        for batch in utils.batches(search_resp['searchResult'][0].get('item', []), 20):
+        for batch in utils.batches(search_resp.get('searchResult', [{}])[0].get('item', []), 20):
             batch_num += 1
             self.logger.info(f'Request details for batch {batch_num} of page {cur_page}')
             yield EbayRequest.details(
@@ -131,6 +135,7 @@ class EbaySpider(scrapy.spiders.Spider):
         # Check status of response
         if response.xpath('/GetMultipleItemsResponse/Ack').get() in ['Failure', 'PartialFailure']:
             # Other values are 'Success', 'Warning'
+            self.errors += 1
             self.logger.error(f'Error(s) returned from details: '
                               f'{response.xpath("/GetMultipleItemsResponse/ErrorMessage").get()}')
             return

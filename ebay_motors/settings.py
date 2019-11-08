@@ -42,6 +42,7 @@ EBAY_SEARCH_URL = 'https://svcs.ebay.com/services/search/FindingService/v1'
 #   {'name': 'StartTimeFrom', 'value': '{prior_run_date}'}
 EBAY_SEARCH_ITEM_FILTERS = [
     {"name": "LocatedIn", "value": ["US", "CA"]},
+    {"name": "EndTimeFrom", "value": "{tomorrow}"},
     {"name": "ModTimeFrom", "value": "{prior_run_date}"},
     # {"name": "StartTimeFrom", "value": "{prior_run_date}"},
     {"name": "ListingType", "value": ["AuctionWithBIN", "Classified", "FixedPrice"]},

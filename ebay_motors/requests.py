@@ -98,6 +98,8 @@ class EbayRequest(JsonRequest):
                 if isinstance(f.get('value'), str):
                     f['value'] = f.get('value').format(
                         prior_run_date=cls.prior_run_date,
+                        current_run_date=cls.current_run_date,
+                        tomorrow=utils.ebay_date_format(arrow.utcnow().shift(days=1).floor('day')),
                         # Add other values here to make them available for replacement in
                         # item filters in settings
                     )

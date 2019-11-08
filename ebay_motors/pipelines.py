@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import arrow
 import logging
+import MySQLdb._exceptions
 import re
 from scrapy.exceptions import DropItem
 from twisted.enterprise import adbapi
@@ -152,11 +153,11 @@ class MySQLExportPipeline(object):
         dbpool = adbapi.ConnectionPool('MySQLdb', **dbargs)
         return cls(dbpool)
 
-    def process_item(self, item, spider):
+    def process_item(self, item, spider, retrying=False):
         spider.processed += 1
         # run db query in the thread pool
         d = self.dbpool.runInteraction(self._do_upsert, item, spider)
-        d.addErrback(self._handle_error, item, spider)
+        d.addErrback(self._handle_error, item, spider, retrying=retrying)
         # at the end return the item in case of success or failure
         d.addBoth(lambda _: item)
         # return the deferred instead the item. This makes the engine to
@@ -206,8 +207,18 @@ class MySQLExportPipeline(object):
         # If rows affected == 0, nothing was changed
         self.logger.debug(f'Stored item {item.get("source_id")} to database')
 
-    def _handle_error(self, failure, item, spider):
+    def _handle_error(self, failure, item, spider, retrying):
         """Handle occurred on db interaction."""
+        try:
+            # Check for deadlock
+            if failure.type is MySQLdb._exceptions.OperationalError and failure.value.args[0] == 1213:
+                if not retrying:
+                    spider.logger.debug('Got a database deadlock...retrying transaction.')
+                    return self.process_item(item, spider, retrying=True)
+                else:
+                    spider.logger.debug('Retried database transaction and got another deadlock.')
+        except Exception as e:
+            spider.logger.warning(f'Failure in database retry logic: {e}')
         spider.errors += 1
         self.logger.error(f'Error writing to the database: {failure}')
 

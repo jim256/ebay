@@ -234,7 +234,7 @@ class EbayMySQLExportPipeline(MySQLExportPipeline):
         # Tap the table to see if the row is already there to get the `price`
         table = spider.settings['MYSQL_EBAY_TABLE']
         cur.execute(f'''
-            SELECT price 
+            SELECT price, date_analyzed 
             FROM {table}
             WHERE source = %s and source_id = %s;
         ''', (item.get('source'), item.get('source_id')))
@@ -244,6 +244,8 @@ class EbayMySQLExportPipeline(MySQLExportPipeline):
             # If the price has decreased, set the item['date_analyzed'] to None
             if item.get('price') and float(item.get('price')) < old_price:
                 item['date_analyzed'] = None
+            else:
+                item['date_analyzed'] = rv[1]
 
 
 class ItemEaterPipeline(object):

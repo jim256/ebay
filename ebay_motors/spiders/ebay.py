@@ -31,9 +31,9 @@ class EbaySpider(scrapy.spiders.Spider):
             open(self.settings.get('EBAY_SEARCH_TIMESTAMP_PATH'), 'w').write(EbayRequest.current_run_date)
         else:
             self.logger.info('Not updating prior_run_date due to processing errors.')
-        self.logger.info(f'\n-- EXECUTION STATS --\n'
-                         f'Processed {self.processed} items.\n'
-                         f'Hit {self.errors} errors.\n')
+        self.logger.info(f'\n\n-- EXECUTION STATS --\n'
+                         f'Processed: {self.processed}\n'
+                         f'Errors: {self.errors}\n')
 
     def start_requests(self):
         """Entry point for scraping."""

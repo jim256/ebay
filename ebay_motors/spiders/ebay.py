@@ -180,13 +180,16 @@ class EbaySpider(scrapy.spiders.Spider):
 
     def auth_error(self, failure):
         self.errors += 1
-        self.logger.error(repr(failure))
+        self.logger.error('Auth: ' + repr(failure))
         self.logger.error(failure.value.response.body)
 
     def search_error(self, failure):
         self.errors += 1
-        self.logger.error(repr(failure))
-        self.logger.error(failure.value.response.body)
+        self.logger.error('Search: ' + repr(failure))
+        try:
+            self.logger.error(failure.value.response.body)
+        except:
+            pass
 
         # Check for expired token error and initiate generating a new access_token
         # This can be deferred to a future date if the expected runtime of this
@@ -194,8 +197,11 @@ class EbaySpider(scrapy.spiders.Spider):
 
     def detail_error(self, failure):
         self.errors += 1
-        self.logger.error(repr(failure))
-        self.logger.error(failure.value.response.body)
+        self.logger.error('Details: ' + repr(failure))
+        try:
+            self.logger.error(failure.value.response.body)
+        except:
+            pass
 
         # Check for expired token error and initiate generating a new access_token
         # This can be deferred to a future date if the expected runtime of this

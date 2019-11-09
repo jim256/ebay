@@ -15,7 +15,7 @@ DEFAULT_REQUEST_HEADERS = {
 ITEM_PIPELINES = {
    'ebay_motors.pipelines.EbayListingCleanserPipeline': 300,
    'ebay_motors.pipelines.EbayMySQLExportPipeline': 310,
-   'ebay_motors.pipelines.ItemEaterPipeline': 320,
+   # 'ebay_motors.pipelines.ItemEaterPipeline': 320,
 }
 
 MYSQL_ENABLED = True
@@ -64,7 +64,8 @@ EBAY_SEARCH_ASPECT_FILTERS = [
 EBAY_SEARCH_PAGESIZE = '100'  # number of items per page in search results 1..100
 EBAY_DETAILS_URL = 'http://open.api.ebay.com/shopping'
 
-RETRY_ENABLED = False
+RETRY_ENABLED = True
+RETRY_TIMES = 1
 
 #SPIDER_MIDDLEWARES = {
 #    'ebay_motors.middlewares.EbayMotorsSpiderMiddleware': 543,

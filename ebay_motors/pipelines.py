@@ -3,6 +3,7 @@ import arrow
 import logging
 import MySQLdb._exceptions
 import re
+import typing
 from scrapy.exceptions import DropItem
 from twisted.enterprise import adbapi
 
@@ -16,8 +17,8 @@ class EbayListingCleanserPipeline(object):
 
     # All mapping keys should be lowercase except for the DEFAULT value
     _TITLE_TYPE_MAPPING = {
-        'clean': 'clean',
-        'clear': 'clean',
+        'clean': 'Clean',
+        'clear': 'Clean',
         'DEFAULT': 'Salvage',
     }
     _FUEL_TYPE_MAPPING = {
@@ -26,8 +27,8 @@ class EbayListingCleanserPipeline(object):
         'DEFAULT': 'Other',
     }
     _SELLER_TYPE_MAPPING = {
-        'private seller': 'private',
-        'dealer': 'dealership',
+        'private seller': 'Private',
+        'dealer': 'Dealership',
         'DEFAULT': None,
     }
 
@@ -39,14 +40,20 @@ class EbayListingCleanserPipeline(object):
         """Clean input values and map raw API values to internal DB values."""
         self.logger.debug(f'Processing item {item.get("source_id")}')
 
-        # clean out the 'not specified's
-        for name in [k for k, v in item.items() if v and v.lower() in ['not specified', '--']]:
-            del item[name]
-
         item['source'] = 'ebay'
         item['date_found'] = arrow.get(EbayRequest.current_run_date).format(_DATE_FORMAT)
         item['date_updated'] = arrow.get(EbayRequest.current_run_date).format(_DATE_FORMAT)
         item['url'] = f'ebay.com/itm/{item.get("source_id")}'
+
+        # clean out the 'not specified's
+        for name in [k for k, v in item.items() if v and v.lower() in ['not specified', '--']]:
+            del item[name]
+
+        # enforce numeric fields
+        numeric_fields = [name for name in item if item.fields[name].get('serializer') is int]
+        for name in numeric_fields:
+            if item.get(name):
+                item[name] = self._ensure_numeric(item[name])
 
         if item.get('details'):
             item['details'] = self._ascii_only(item['details'])
@@ -54,22 +61,65 @@ class EbayListingCleanserPipeline(object):
         if item.get('name'):
             item['name'] = self._ascii_only(item['name'])
 
-        if item.get('num_doors'):
-            if not item['num_doors'].isnumeric():
-                # e.g. '4 Doors'
-                item['num_doors'] = item['num_doors'][0]
-
-        if item.get('num_cylinders'):
-            if not item['num_cylinders'].isnumeric():
-                # e.g. 'V8' -- strip out all non-numerics
-                item['num_cylinders'] = re.sub(r'\D', '', item['num_cylinders'])
-            if not item['num_cylinders']:
-                item['num_cylinders'] = None
+        if item.get('transmission'):
+            item['transmission'] = item['transmission'].title()
 
         if item.get('mileage'):
-            if not item['mileage'].isnumeric():
-                # e.g. 'N/A'
-                item['mileage'] = None
+            try:
+                if item['mileage'] < 300 and (item.get('year', 9999) or 9999) < arrow.utcnow().year - 1:
+                    item['mileage'] *= 1000
+                elif item['mileage'] > 1000000:
+                    while item['mileage'] > 1000000:
+                        item['mileage'] /= 10
+            except:
+                pass
+
+        if item.get('body_type'):
+            body_type = item['body_type'].lower()
+            if re.search(r'sports?[\s/]*utility|cross|suv', body_type):
+                body_type = 'SUV'
+            elif re.search(r'truck|pick[\s-]*up|(crew|regular|extended|quad|double|super)\s*cab|super\s*crew|(short|flat)\s*bed', body_type):
+                body_type = 'Truck'
+            elif re.search(r'sedan|compact|4dr|4\s*door', body_type):
+                body_type = 'Sedan'
+            elif 'coupe' in body_type:
+                body_type = 'Coupe'
+            elif 'convertible' in body_type:
+                body_type = 'Convertible'
+            elif 'van' in body_type:
+                body_type = 'Van'
+            elif 'hatch' in body_type or 'wagon' in body_type:
+                body_type = 'Hatchback'
+            item['body_type'] = body_type.title()
+
+        if item.get('drive_type'):
+            drive_type = item['drive_type'].lower()
+            m = re.search(r'awd|fwd|rwd|4wd', drive_type)
+            if m:
+                drive_type = m.group(1).upper()
+            elif 'four wheel drive' in drive_type:
+                drive_type = '4WD'
+            elif re.search(r'4(?!dr)', drive_type):  # eliminate false positive on 4DR
+                drive_type = '4WD'
+            elif 'all' in drive_type:
+                drive_type = 'AWD'
+            elif 'front' in drive_type:
+                drive_type = 'FWD'
+            elif 'rear' in drive_type:
+                drive_type = 'RWD'
+            elif re.search(r'2', drive_type):  # eliminate false positive on 2DR with r'2(?!dr)'
+                rwd_body_types = re.compile(r'truck|pickup|coupe|cpe|convertible')
+                if item.get('body_type'):
+                    if rwd_body_types.search(item['body_type'].lower()):
+                        drive_type = 'RWD'
+                    else:
+                        drive_type = 'FWD'
+                else:
+                    if rwd_body_types.search(drive_type):
+                        drive_type = 'RWD'
+                    else:
+                        drive_type = '2WD'
+            item['drive_type'] = drive_type
 
         if item.get('title_type'):
             item['title_type'] = self._map_field(self._TITLE_TYPE_MAPPING, item.get('title_type'))
@@ -118,6 +168,15 @@ class EbayListingCleanserPipeline(object):
     def _ascii_only(self, text: str) -> str:
         """Replace all non-ascii characters with spaces."""
         return ''.join([char if ord(char) < 128 else ' ' for char in text])
+
+    def _ensure_numeric(self, text: str) -> typing.Optional[int]:
+        """Ensure the string is numeric."""
+        if text.isnumeric():
+            return int(text)
+        text = re.sub(r'\D', '', text)  # handle decimals with re.search(r'(\d+(?:\.\d+)?|\.\d+)', text).group(1)
+        if not text:
+            return None
+        return int(text)
 
 
 class MySQLExportPipeline(object):

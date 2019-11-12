@@ -108,6 +108,8 @@ class EbayListingCleanserPipeline(object):
             elif 'rear' in drive_type:
                 drive_type = 'RWD'
             elif re.search(r'2', drive_type):  # eliminate false positive on 2DR with r'2(?!dr)'
+                # Some of these body types don't necessarily mean RWD,
+                # perhaps worth revisiting at some point
                 rwd_body_types = re.compile(r'truck|pickup|coupe|cpe|convertible')
                 if item.get('body_type'):
                     if rwd_body_types.search(item['body_type'].lower()):
@@ -136,7 +138,7 @@ class EbayListingCleanserPipeline(object):
             item['fuel_type'] = self._map_field(self._FUEL_TYPE_MAPPING, item.get('fuel_type'))
 
         if item.get('seller_type'):
-            # handle weirdness like 'Private Seller1951 chevy styleline deluxe'
+            # handle weirdness like 'Private Seller1951 chevy styleline deluxe' in the seller_type field
             seller_type = [key for key in self._SELLER_TYPE_MAPPING if item['seller_type'].lower().startswith(key)]
             if seller_type:
                 item['seller_type'] = seller_type[0]

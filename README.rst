@@ -66,6 +66,7 @@ Linux
     > git clone https://github.com/jim256/as-ebay
     > cd as-ebay
     > source /opt/envs/as_ebay/bin/activate
+    > sudo apt-get install libmysqlclient-dev
     > pip install -r requirements.txt
     > deactivate
 

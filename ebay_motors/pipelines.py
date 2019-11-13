@@ -84,7 +84,7 @@ class EbayListingCleanserPipeline(object):
                 body_type = 'Sedan'
             elif 'coupe' in body_type:
                 body_type = 'Coupe'
-            elif 'convertible' in body_type:
+            elif 'convert' in body_type:
                 body_type = 'Convertible'
             elif 'van' in body_type:
                 body_type = 'Van'

@@ -96,7 +96,7 @@ class EbayListingCleanserPipeline(object):
             drive_type = item['drive_type'].lower()
             m = re.search(r'awd|fwd|rwd|4wd', drive_type)
             if m:
-                drive_type = m.group(1).upper()
+                drive_type = m.group().upper()
             elif 'four wheel drive' in drive_type:
                 drive_type = '4WD'
             elif re.search(r'4(?!dr)', drive_type):  # eliminate false positive on 4DR

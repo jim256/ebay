@@ -173,12 +173,16 @@ class EbayListingCleanserPipeline(object):
 
     def _ensure_numeric(self, text: str) -> typing.Optional[int]:
         """Ensure the string is numeric."""
-        if text.isnumeric():
-            return int(text)
-        text = re.sub(r'\D', '', text)  # handle decimals with re.search(r'(\d+(?:\.\d+)?|\.\d+)', text).group(1)
-        if not text:
-            return None
-        return int(text)
+        try:
+            return int(float(text))
+        except:
+            pass
+        try:
+            return int(float(re.search(r'(\d+(?:\.\d+)?|\.\d+)', text).group(1)))
+        except:
+            pass
+        # If it isn't numeric and doesn't contain numbers to extract, return None
+        return None
 
 
 class MySQLExportPipeline(object):

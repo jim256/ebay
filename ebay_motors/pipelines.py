@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import arrow
+import datetime
 import logging
 import MySQLdb._exceptions
 import re
@@ -42,11 +43,11 @@ class EbayListingCleanserPipeline(object):
 
         item['source'] = 'ebay'
         item['date_found'] = arrow.get(EbayRequest.current_run_date).format(_DATE_FORMAT)
-        item['date_updated'] = arrow.get(EbayRequest.current_run_date).format(_DATE_FORMAT)
-        item['url'] = f'ebay.com/itm/{item.get("source_id")}'
+        item['date_refreshed'] = arrow.get(EbayRequest.current_run_date).format(_DATE_FORMAT)
+        item['url'] = f'https://ebay.com/itm/{item.get("source_id")}'
 
         # clean out the 'not specified's
-        for name in [k for k, v in item.items() if v and v.lower() in ['not specified', '--']]:
+        for name in [k for k, v in item.items() if v and v.lower() in ['not specified', '--', 'unspecified']]:
             del item[name]
 
         # enforce numeric fields
@@ -97,7 +98,7 @@ class EbayListingCleanserPipeline(object):
             m = re.search(r'awd|fwd|rwd|4wd', drive_type)
             if m:
                 drive_type = m.group().upper()
-            elif 'four wheel drive' in drive_type:
+            elif 'four' in drive_type and 'drive' in drive_type:
                 drive_type = '4WD'
             elif re.search(r'4(?!dr)', drive_type):  # eliminate false positive on 4DR
                 drive_type = '4WD'
@@ -299,18 +300,19 @@ class EbayMySQLExportPipeline(MySQLExportPipeline):
         # Tap the table to see if the row is already there to get the `price`
         table = spider.settings['MYSQL_EBAY_TABLE']
         cur.execute(f'''
-            SELECT price, date_analyzed 
+            SELECT price, date_price_reduced 
             FROM {table}
             WHERE source = %s and source_id = %s;
         ''', (item.get('source'), item.get('source_id')))
         rv = cur.fetchone()
         if rv:
             old_price = rv[0]
-            # If the price has decreased, set the item['date_analyzed'] to None
+            # If the price has decreased, set the item['date_price_reduced'] to current UTC datetime
             if item.get('price') and float(item.get('price')) < old_price:
-                item['date_analyzed'] = None
+                self.logger.debug('Price drop for ebay id {} from {} to {}. Setting date_price_reduced to {}'.format(item.get('source_id'), old_price, item.get('price'), datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")))
+                item["date_price_reduced"] = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             else:
-                item['date_analyzed'] = rv[1]
+                item['date_price_reduced'] = rv[1]
 
 
 class ItemEaterPipeline(object):

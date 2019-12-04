@@ -149,7 +149,7 @@ class EbaySpider(scrapy.spiders.Spider):
             yield EbayListingItem({
                 'source_id': item.get('itemId', [None])[0],
                 'name': item.get('title', [None])[0],
-                'url': item.get('viewItemURL', [None])[0],
+                'url': 'https://' + item.get('viewItemURL', [None])[0],
                 'price': item.get('sellingStatus', [{}])[0].get('currentPrice', [{}])[0].get('__value__'),
                 'city': item['location'][0].rsplit(',', maxsplit=2)[0] if ',' in item.get('location', [''])[0] else None,
                 'state': item['location'][0].rsplit(',', maxsplit=2)[1] if ',' in item.get('location', [''])[0] else None,

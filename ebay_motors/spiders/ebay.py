@@ -133,11 +133,11 @@ class EbaySpider(scrapy.spiders.Spider):
             response.selector.remove_namespaces()
 
         # Check status of response
-        if response.xpath('/GetMultipleItemsResponse/Ack').get() in ['Failure', 'PartialFailure']:
+        if response.xpath('/GetMultipleItemsResponse/Ack/text()').get() in ['Failure', 'PartialFailure']:
             # Other values are 'Success', 'Warning'
             self.errors += 1
             self.logger.error(f'Error(s) returned from details: '
-                              f'{response.xpath("/GetMultipleItemsResponse/ErrorMessage").get()}')
+                              f'{response.xpath("/GetMultipleItemsResponse/Errors/ShortMessage/text()").get()}')
             return
 
         for item in items:

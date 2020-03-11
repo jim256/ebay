@@ -1,5 +1,5 @@
 # to build image, cd to dockerfile directory (repo root directory) and run docker build -t ebay-image .
-# to start, run docker run -d --restart always --name=ebay-container --mount source=ebay,target=/usr/src/ebay ebay-image
+# to start, run docker run -d --net as-net --ip 172.99.0.14 --restart always --name=ebay-container --mount source=ebay,target=/usr/src/ebay ebay-image
 
 FROM python:3
 

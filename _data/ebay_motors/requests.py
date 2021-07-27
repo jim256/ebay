@@ -78,9 +78,9 @@ class EbayRequest(JsonRequest):
             'X-EBAY-SOA-SECURITY-APPNAME': settings['EBAY_CLIENT_ID'],
             # 'X-EBAY-SOA-SERVICE-VERSION': '1.0.0',
         }
+        # This was in body "xmlns": "https://www.ebay.com/marketplace/search/v1/services",
         body = {
             "findItemsAdvancedRequest": {
-                "xmlns": "https://www.ebay.com/marketplace/search/v1/services",
                 "categoryId": "6001",  # All vehicle categories
                 # "itemFilter": [],
                 # "aspectFilters": [],
@@ -145,9 +145,9 @@ class EbayRequest(JsonRequest):
         # itemFilter: ListingType = AuctionWithBIN, Classified, and FixedPrice
         # aspectFilter: minYear, maxYear, make, model, minMileage, maxMileage, titleType
         # https://developer.ebay.com/Devzone/finding/CallRef/findItemsAdvanced.html#sampleaspectFilter
+        # This was in body: "xmlns": "https://www.ebay.com/marketplace/search/v1/services",
         body = {
           "findItemsAdvancedRequest": {
-            "xmlns": "https://www.ebay.com/marketplace/search/v1/services",
             "categoryId": "6001",  # All vehicle categories
             "itemFilter": [
               {
